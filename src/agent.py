@@ -1,21 +1,18 @@
 from typing import Any
+from pathlib import Path
+import json
+import numpy as np
+
 from pydantic import BaseModel, HttpUrl, ValidationError
+
 from a2a.server.tasks import TaskUpdater
-from a2a.types import Message, TaskState, Part, TextPart, DataPart
+from a2a.types import Message, TaskState, Part, DataPart
 from a2a.utils import get_message_text, new_agent_text_message
 
 from messenger import Messenger
-
-import json
-import numpy as np
-from pathlib import Path
-
-
 class EvalRequest(BaseModel):
     participants: dict[str, HttpUrl]
     config: dict[str, Any]
-
-
 class Agent:
     required_roles = ["purple"]
     required_config_keys = []
@@ -24,87 +21,97 @@ class Agent:
         self.messenger = Messenger()
 
     def validate_request(self, request: EvalRequest) -> tuple[bool, str]:
-        missing_roles = set(self.required_roles) - set(request.participants)
-        if missing_roles:
-            return False, f"Missing roles: {missing_roles}"
+        missing = set(self.required_roles) - set(request.participants)
+        if missing:
+            return False, f"Missing roles: {missing}"
         return True, "ok"
 
-    def load_scicode_steps(self, limit: int = 3):
+
+    def load_scicode_problems(self, limit: int):
         path = Path("data/problems_all.jsonl")
-        steps = []
+        problems = []
 
         with path.open() as f:
             for line in f:
                 obj = json.loads(line)
-                for step in obj.get("sub_steps", []):
-                    if "function_header" in step and "test_cases" in step:
-                        steps.append({
-                            "problem": obj["problem_name"],
-                            "sub_step": step["step_number"],
-                            "function_header": step["function_header"],
-                            "test_cases": step["test_cases"],
-                        })
-                        if len(steps) >= limit:
-                            return steps
-        return steps
+                sub_steps = [
+                    step for step in obj.get("sub_steps", [])
+                    if "function_header" in step and "test_cases" in step
+                ]
+                if not sub_steps:
+                    continue
 
-    def extract_function_name(self, function_header: str) -> str:
-        header = function_header.strip()
-        name = header.split("def ", 1)[1].split("(", 1)[0].strip()
-        if not name.isidentifier():
-            raise RuntimeError(f"Invalid function name: {name}")
-        return name
+                problems.append({
+                    "problem": obj["problem_name"],
+                    "steps": sub_steps,
+                })
 
-    def extract_target(self, test: str):
-        """
-        Extracts `target` from lines like:
-        ref1 = ...
-        """
-        for line in test.splitlines():
-            if line.strip().startswith("ref"):
-                _, rhs = line.split("=", 1)
-                return eval(rhs.strip(), {"np": np})
-        return None
+                if len(problems) >= limit:
+                    break
 
-    def execute_candidate(
-        self,
-        code: str,
-        function_name: str,
-        tests: list[str],
-        shared_env: dict,
-        debug: bool = False,
-    ):
-        exec(code, shared_env, shared_env)
+        return problems
 
-        if function_name not in shared_env:
-            raise RuntimeError(f"{function_name} not defined")
+    def build_shared_env(self):
+        def safe_import(name, *args, **kwargs):
+            if name.startswith("scicode"):
+                return __import__(name, *args, **kwargs)
+            raise ImportError(name)
 
-        results = []
-        debug_info = {
-            "function_found": True,
-            "tests": [],
+        env = {
+            "__builtins__": {
+                "__import__": safe_import,
+            },
+            "np": np,
+            "numpy": np,
         }
+        return env
 
-        for test in tests:
-            record = {"test": test, "passed": False}
+    def execute_problem(self, code: str, steps: list[dict], debug: bool):
+        env = self.build_shared_env()
 
-            try:
-                target_value = self.extract_target(test)
-                shared_env["target"] = target_value
+        exec(code, env, env)
 
-                exec(test, shared_env, shared_env)
+        total = 0
+        passed = 0
+        details = []
+        debug_tests = []
 
-                record["passed"] = True
-                record["target"] = target_value
-                results.append(True)
+        for step in steps:
+            step_passed = 0
+            step_total = len(step["test_cases"])
 
-            except Exception as e:
-                record["error"] = str(e)
-                results.append(False)
+            for test in step["test_cases"]:
+                try:
+                    local_env = dict(env)
+                    local_env["target"] = None
+                    exec(test, local_env, local_env)
+                    step_passed += 1
+                    passed += 1
+                    ok = True
+                    err = None
+                except Exception as e:
+                    ok = False
+                    err = str(e)
 
-            debug_info["tests"].append(record)
+                if debug:
+                    debug_tests.append({
+                        "sub_step": step["step_number"],
+                        "test": test,
+                        "passed": ok,
+                        "error": err,
+                        "target": local_env.get("target"),
+                    })
 
-        return results, debug_info
+            total += step_total
+
+            details.append({
+                "sub_step": step["step_number"],
+                "function": step["function_header"].split("def ", 1)[1].split("(")[0],
+                "passed": step_passed,
+                "total": step_total,
+            })
+
+        return passed, total, details, debug_tests
 
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
@@ -113,7 +120,7 @@ class Agent:
             request = EvalRequest.model_validate_json(input_text)
         except ValidationError:
             await updater.reject(
-                new_agent_text_message("Invalid request format. Expected EvalRequest JSON.")
+                new_agent_text_message("Invalid request format.")
             )
             return
 
@@ -122,8 +129,9 @@ class Agent:
             await updater.reject(new_agent_text_message(msg))
             return
 
-        debug = bool(request.config.get("debug", False))
-        num_tasks = int(request.config.get("num_tasks", 3))
+        config = request.config or {}
+        num_tasks = int(config.get("num_tasks", 1))
+        debug = bool(config.get("debug", False))
 
         await updater.update_status(
             TaskState.working,
@@ -132,94 +140,79 @@ class Agent:
             )
         )
 
-        steps = self.load_scicode_steps(limit=num_tasks)
-
-        shared_env = {
-            "__builtins__": {},
-            "np": np,
-            "numpy": np,
-        }
-
-        total_tests = 0
-        total_passed = 0
-        details = []
-
+        problems = self.load_scicode_problems(limit=num_tasks)
         purple_url = str(request.participants["purple"])
 
-        for step in steps:
-            function_name = self.extract_function_name(step["function_header"])
+        grand_passed = 0
+        grand_total = 0
+        all_details = []
 
+        for prob in problems:
             await updater.update_status(
                 TaskState.working,
-                new_agent_text_message(
-                    f"Evaluating {step['problem']} / {step['sub_step']} ({function_name})"
-                )
+                new_agent_text_message(f"Evaluating problem: {prob['problem']}")
             )
 
+            headers = "\n".join(step["function_header"] for step in prob["steps"])
+
             prompt = f"""
-You are solving a scientific programming task from the SciCode benchmark.
+You are solving a SciCode scientific programming benchmark.
 
-Write Python code that defines the following function EXACTLY:
-
-{step['function_header']}
+Implement ALL of the following Python functions.
+They may call each other.
 
 Rules:
-- Do NOT print anything.
-- Do NOT include extra comments or examples.
-- Assume `numpy` is available as `np`.
-- Return ONLY valid Python code.
+- Define EXACT function signatures
+- No printing
+- No markdown
+- No extra helpers
+- Deterministic & numerically stable
+- Assume numpy is available as np
+
+Functions:
+{headers}
+
+Return ONLY valid Python code containing ALL function definitions.
 """
 
-            try:
-                code = await self.messenger.talk_to_agent(
-                    message=prompt,
-                    url=purple_url,
-                    new_conversation=True,
-                )
+            code = await self.messenger.talk_to_agent(
+                message=prompt,
+                url=purple_url,
+                new_conversation=True,
+            )
 
-                results, debug_info = self.execute_candidate(
-                    code=code,
-                    function_name=function_name,
-                    tests=step["test_cases"],
-                    shared_env=shared_env,
-                    debug=debug,
-                )
+            passed, total, details, debug_tests = self.execute_problem(
+                code=code,
+                steps=prob["steps"],
+                debug=debug,
+            )
 
-                passed = sum(results)
-                total = len(results)
+            grand_passed += passed
+            grand_total += total
 
-                if debug:
-                    await updater.add_artifact(
-                        name=f"Debug-{step['problem']}-{step['sub_step']}",
-                        parts=[
-                            Part(
-                                root=DataPart(
-                                    data={
-                                        "function": function_name,
-                                        "code": code,
-                                        "execution": debug_info,
-                                    }
-                                )
-                            )
-                        ],
-                    )
-
-            except Exception:
-                passed = 0
-                total = len(step["test_cases"])
-
-            total_passed += passed
-            total_tests += total
-
-            details.append({
-                "problem": step["problem"],
-                "sub_step": step["sub_step"],
-                "function": function_name,
+            all_details.append({
+                "problem": prob["problem"],
                 "passed": passed,
                 "total": total,
+                "details": details,
             })
 
-        accuracy = total_passed / total_tests if total_tests else 0.0
+            if debug:
+                await updater.add_artifact(
+                    name=f"Debug-{prob['problem']}",
+                    parts=[
+                        Part(
+                            root=DataPart(
+                                data={
+                                    "code": code,
+                                    "tests": debug_tests,
+                                }
+                            )
+                        )
+                    ],
+                )
+
+        accuracy = grand_passed / grand_total if grand_total else 0.0
 
         await updater.add_artifact(
             name="Result",
@@ -227,11 +220,11 @@ Rules:
                 Part(
                     root=DataPart(
                         data={
-                            "num_tasks": len(details),
-                            "passed": total_passed,
-                            "total": total_tests,
+                            "num_tasks": len(all_details),
+                            "passed": grand_passed,
+                            "total": grand_total,
                             "accuracy": accuracy,
-                            "details": details,
+                            "details": all_details,
                         }
                     )
                 )
