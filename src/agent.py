@@ -1,7 +1,7 @@
 from typing import Any
 from pydantic import BaseModel, HttpUrl, ValidationError
 from a2a.server.tasks import TaskUpdater
-from a2a.types import Message, TaskState, Part, DataPart
+from a2a.types import Message, TaskState, Part, TextPart, DataPart
 from a2a.utils import get_message_text, new_agent_text_message
 
 from messenger import Messenger
