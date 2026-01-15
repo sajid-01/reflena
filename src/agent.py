@@ -13,7 +13,6 @@ from messenger import Messenger
 
 
 class EvalRequest(BaseModel):
-    """Request format sent by the AgentBeats platform to green agents."""
     participants: dict[str, HttpUrl]
     config: dict[str, Any]
 
@@ -115,8 +114,7 @@ class Agent:
             await updater.update_status(
                 TaskState.working,
                 new_agent_text_message(
-                    f"[{idx}/{len(steps)}] "
-                    f"Evaluating {step['problem']} / {step['sub_step']}"
+                    f"[{idx}/{len(steps)}] Evaluating {step['problem']} / {step['sub_step']}"
                 ),
             )
 
@@ -137,12 +135,41 @@ Return ONLY valid Python code.
                     new_conversation=True,
                 )
 
+                first_line = code.strip().splitlines()[0] if code.strip() else "<empty>"
+                await updater.update_status(
+                    TaskState.working,
+                    new_agent_text_message(
+                        f"Received code (len={len(code)}): {first_line}"
+                    ),
+                )
+
+                await updater.update_status(
+                    TaskState.working,
+                    new_agent_text_message(
+                        f"Executing {len(step['test_cases'])} tests"
+                    ),
+                )
+
                 results = self.execute_candidate(code, step["test_cases"])
                 passed = sum(results)
                 total = len(results)
+
+                await updater.update_status(
+                    TaskState.working,
+                    new_agent_text_message(
+                        f"Passed {passed}/{total} tests"
+                    ),
+                )
             except Exception:
                 passed = 0
                 total = len(step["test_cases"])
+
+                await updater.update_status(
+                    TaskState.working,
+                    new_agent_text_message(
+                        f"Execution failed (0/{total} tests passed)"
+                    ),
+                )
 
             total_passed += passed
             total_tests += total
