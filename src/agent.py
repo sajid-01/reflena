@@ -74,34 +74,46 @@ class Agent:
         # Execute candidate code
         exec(code, env, env)
 
-        # Fail fast if any required function is missing
-        missing_funcs = []
-        for step in steps:
-            fname = step["function_header"].split("def ", 1)[1].split("(")[0]
-            if fname not in env:
-                missing_funcs.append(fname)
-
-        if missing_funcs:
-            raise RuntimeError(f"Missing required functions: {missing_funcs}")
-
         total = 0
         passed = 0
         details = []
         debug_tests = []
 
         for step in steps:
-            step_env = dict(env)  # shared env per sub-step
+            step_env = dict(env)
             step_passed = 0
             step_total = len(step["test_cases"])
 
+            func_name = step["function_header"].split("def ", 1)[1].split("(")[0]
+
+            if func_name not in env:
+                total += step_total
+
+                details.append({
+                    "sub_step": step["step_number"],
+                    "function": func_name,
+                    "passed": 0,
+                    "total": step_total,
+                })
+
+                if debug:
+                    for test in step["test_cases"]:
+                        debug_tests.append({
+                            "sub_step": step["step_number"],
+                            "test": test,
+                            "passed": False,
+                            "error": f"Function '{func_name}' not defined",
+                            "target": None,
+                        })
+
+                continue 
+
             for test in step["test_cases"]:
                 try:
-                    # Split setup and assertion
                     if "assert" in test:
                         setup, assertion = test.split("assert", 1)
                         exec(setup, step_env, step_env)
 
-                        # Bind target from ref*
                         step_env["target"] = None
                         for ref in ("ref1", "ref2", "ref3", "ref4"):
                             if ref in step_env:
@@ -133,7 +145,7 @@ class Agent:
 
             details.append({
                 "sub_step": step["step_number"],
-                "function": step["function_header"].split("def ", 1)[1].split("(")[0],
+                "function": func_name,
                 "passed": step_passed,
                 "total": step_total,
             })
