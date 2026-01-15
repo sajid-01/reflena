@@ -14,12 +14,11 @@ from messenger import Messenger
 
 class EvalRequest(BaseModel):
     """Request format sent by the AgentBeats platform to green agents."""
-    participants: dict[str, HttpUrl]  # role -> agent URL
+    participants: dict[str, HttpUrl]
     config: dict[str, Any]
 
 
 class Agent:
-    # REQUIRED by AgentBeats
     required_roles = ["purple"]
     required_config_keys = []
 
@@ -39,57 +38,40 @@ class Agent:
         with path.open() as f:
             for line in f:
                 obj = json.loads(line)
-
                 sub_steps = obj.get("sub_steps", [])
                 if not sub_steps:
                     continue
 
-                first_step = sub_steps[0]
-
-                # Only handle test-driven coding sub-steps
-                if "function_header" not in first_step or "test_cases" not in first_step:
+                step = sub_steps[0]
+                if "function_header" not in step or "test_cases" not in step:
                     continue
 
                 steps.append({
                     "problem": obj["problem_name"],
-                    "sub_step": first_step["step_number"],
-                    "function_header": first_step["function_header"],
-                    "test_cases": first_step["test_cases"],
+                    "sub_step": step["step_number"],
+                    "function_header": step["function_header"],
+                    "test_cases": step["test_cases"],
                 })
 
         return steps
 
     def execute_candidate(self, code: str, tests: list[str]):
-        safe_globals = {
+        env = {
             "__builtins__": {},
             "np": np,
             "numpy": np,
         }
 
-        safe_locals = {}
+        exec(code, env, env)
 
-        # Execute candidate code
-        exec(code, safe_globals, safe_locals)
-
-        # Infer function name from locals (single-function assumption)
-        fn = None
-        for v in safe_locals.values():
-            if callable(v):
-                fn = v
-                break
-
-        if fn is None:
+        callables = [v for v in env.values() if callable(v)]
+        if not callables:
             raise RuntimeError("No callable function defined")
 
         results = []
         for test in tests:
             try:
-                local_env = {
-                    fn.__name__: fn,
-                    "np": np,
-                    "target": None,
-                }
-                exec(test, {}, local_env)
+                exec(test, env, env)
                 results.append(True)
             except Exception:
                 results.append(False)
@@ -99,7 +81,6 @@ class Agent:
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
 
-        # Validate request format
         try:
             request = EvalRequest.model_validate_json(input_text)
         except ValidationError:
