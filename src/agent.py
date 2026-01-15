@@ -66,7 +66,7 @@ class EvalRequest(BaseModel):
 class Agent:
     # REQUIRED by AgentBeats
     required_roles = ["purple"]
-    required_config_keys = ["task", "input"]
+    required_config_keys = []
 
     def __init__(self):
         self.messenger = Messenger()
