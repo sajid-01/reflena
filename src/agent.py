@@ -73,12 +73,11 @@ class Agent:
         results = []
         for test in tests:
             try:
-                local_env = {
+                env = {
                     function_name: fn,
                     "np": np,
-                    "target": None,
                 }
-                exec(test, {}, local_env)
+                exec(test, env, env)
                 results.append(True)
             except Exception:
                 results.append(False)
