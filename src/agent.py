@@ -6,13 +6,14 @@ from pathlib import Path
 from pydantic import BaseModel, HttpUrl, ValidationError
 
 from a2a.server.tasks import TaskUpdater
-from a2a.types import Message, TaskState, Part, TextPart, DataPart
+from a2a.types import Message, TaskState, Part, DataPart
 from a2a.utils import get_message_text, new_agent_text_message
 
 from messenger import Messenger
 
 
 class EvalRequest(BaseModel):
+    """Request format sent by the AgentBeats platform to green agents."""
     participants: dict[str, HttpUrl]
     config: dict[str, Any]
 
@@ -30,6 +31,9 @@ class Agent:
             return False, f"Missing roles: {missing_roles}"
         return True, "ok"
 
+    # ------------------------------------------------------------
+    # Load first sub-problem from each SciCode problem
+    # ------------------------------------------------------------
     def load_first_scicode_steps(self):
         path = Path("data/problems_all.jsonl")
         steps = []
@@ -54,15 +58,21 @@ class Agent:
 
         return steps
 
+    # ------------------------------------------------------------
+    # Execute candidate code against SciCode tests
+    # ------------------------------------------------------------
     def execute_candidate(self, code: str, tests: list[str]):
+        # Shared execution environment (matches SciCode semantics)
         env = {
             "__builtins__": {},
             "np": np,
             "numpy": np,
         }
 
+        # Execute candidate code
         exec(code, env, env)
 
+        # Ensure at least one callable exists
         callables = [v for v in env.values() if callable(v)]
         if not callables:
             raise RuntimeError("No callable function defined")
@@ -77,6 +87,9 @@ class Agent:
 
         return results
 
+    # ------------------------------------------------------------
+    # Main A2A execution entrypoint
+    # ------------------------------------------------------------
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
 
@@ -114,7 +127,8 @@ class Agent:
             await updater.update_status(
                 TaskState.working,
                 new_agent_text_message(
-                    f"[{idx}/{len(steps)}] Evaluating {step['problem']} / {step['sub_step']}"
+                    f"[{idx}/{len(steps)}] "
+                    f"Evaluating {step['problem']} / {step['sub_step']}"
                 ),
             )
 
@@ -135,41 +149,12 @@ Return ONLY valid Python code.
                     new_conversation=True,
                 )
 
-                first_line = code.strip().splitlines()[0] if code.strip() else "<empty>"
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(
-                        f"Received code (len={len(code)}): {first_line}"
-                    ),
-                )
-
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(
-                        f"Executing {len(step['test_cases'])} tests"
-                    ),
-                )
-
                 results = self.execute_candidate(code, step["test_cases"])
                 passed = sum(results)
                 total = len(results)
-
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(
-                        f"Passed {passed}/{total} tests"
-                    ),
-                )
             except Exception:
                 passed = 0
                 total = len(step["test_cases"])
-
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(
-                        f"Execution failed (0/{total} tests passed)"
-                    ),
-                )
 
             total_passed += passed
             total_tests += total
