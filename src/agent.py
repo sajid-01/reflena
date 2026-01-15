@@ -36,18 +36,27 @@ class Agent:
 
         return True, "ok"
     
-    def load_integrate_dos_problem(self):
+    def load_scicode_steps(self, limit: int = 3):
         path = Path("data/problems_all.jsonl")
+        steps = []
 
         with path.open() as f:
             for line in f:
                 obj = json.loads(line)
-                if obj["problem_name"] == "linear_tetrahedron_method":
-                    for step in obj["sub_steps"]:
-                        if step["step_number"] == "17.2":
-                            return step
+                for step in obj.get("sub_steps", []):
+                    # Only single-function, test-based steps
+                    if "function_header" in step and "test_cases" in step:
+                        steps.append({
+                            "problem": obj["problem_name"],
+                            "sub_step": step["step_number"],
+                            "function_header": step["function_header"],
+                            "test_cases": step["test_cases"],
+                        })
+                        if len(steps) >= limit:
+                            return steps
 
-        raise RuntimeError("integrate_DOS sub-step not found")
+        return steps
+
     
     def execute_candidate(self, code: str, tests: list[str]):
         safe_globals = {
@@ -106,56 +115,75 @@ class Agent:
         )
 
         # Load benchmark
-        step = self.load_integrate_dos_problem()
-        tests = step["test_cases"]
+        steps = self.load_scicode_steps(limit=3)
 
-        # Build prompt
-        prompt = f"""
+        total_tests = 0
+        total_passed = 0
+        details = []
+
+        purple_url = str(request.participants["purple"])
+
+        for step in steps:
+            await updater.update_status(
+                TaskState.working,
+                new_agent_text_message(
+                    f"Evaluating {step['problem']} / {step['sub_step']}..."
+                )
+            )
+
+            prompt = f"""
         Write Python code that defines the following function exactly:
 
-        {step["function_header"]}
+        {step['function_header']}
 
         The function must satisfy the following test cases.
         Do NOT print anything.
         Return ONLY valid Python code.
         """
 
-        # Send to purple agent
-        purple_url = str(request.participants["purple"])
-        code = await self.messenger.talk_to_agent(
-            message=prompt,
-            url=purple_url,
-            new_conversation=True,
-        )
+            try:
+                code = await self.messenger.talk_to_agent(
+                    message=prompt,
+                    url=purple_url,
+                    new_conversation=True,
+                )
 
-        # Execute + evaluate
-        try:
-            results = self.execute_candidate(code, tests)
-            passed = sum(results)
-            total = len(results)
-            accuracy = passed / total
-        except Exception as e:
-            passed = 0
-            total = len(tests)
-            accuracy = 0.0
+                results = self.execute_candidate(code, step["test_cases"])
+                passed = sum(results)
+                total = len(results)
+            except Exception:
+                passed = 0
+                total = len(step["test_cases"])
 
-        # Emit artifact
+            total_passed += passed
+            total_tests += total
+
+            details.append({
+                "problem": step["problem"],
+                "sub_step": step["sub_step"],
+                "passed": passed,
+                "total": total,
+            })
+
+        accuracy = total_passed / total_tests if total_tests > 0 else 0.0
+        
         await updater.add_artifact(
             name="Result",
             parts=[
-                Part(root=TextPart(text="SciCode integrate_DOS evaluation completed")),
                 Part(
                     root=DataPart(
                         data={
-                            "problem": "linear_tetrahedron_method",
-                            "sub_step": "17.2",
-                            "passed": passed,
-                            "total": total,
+                            "num_tasks": len(details),
+                            "passed": total_passed,
+                            "total": total_tests,
                             "accuracy": accuracy,
+                            "details": details,
                         }
                     )
-                ),
+                )
             ],
         )
 
         await updater.complete()
+
+
