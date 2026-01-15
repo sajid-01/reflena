@@ -1,182 +1,584 @@
 {
   "benchmark": "reflena-scientific-v1",
   "problems": [
-    {
-      "problem": "trapezoidal_integration",
-      "function_name": "trapz_integral",
-      "inputs": [
         {
-          "y": [
-            0,
-            1,
-            4,
-            9
-          ],
-          "dx": 1.0
+        "problem": "black_scholes_call_price",
+        "function_name": "bs_call_price",
+        "signature": "S, K, r, T, sigma",
+        "description": "Compute the Black–Scholes price of a European call option.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "S": 100.0, "K": 100.0, "r": 0.05, "T": 1.0, "sigma": 0.2 },
+            "output": 10.45
+            },
+            {
+            "type": "noisy",
+            "input": { "S": 102.0, "K": 100.0, "r": 0.048, "T": 0.95, "sigma": 0.21 },
+            "output": 11.3
+            }
+        ],
+        "tolerance": 0.15
         },
         {
-          "y": [
-            0,
-            0.25,
-            1.0
-          ],
-          "dx": 0.5
+        "problem": "implied_volatility_newton",
+        "function_name": "implied_volatility",
+        "signature": "price, S, K, r, T",
+        "description": "Estimate implied volatility of a European call option using Newton–Raphson iteration.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "price": 10.45, "S": 100.0, "K": 100.0, "r": 0.05, "T": 1.0 },
+            "output": 0.2
+            }
+        ],
+        "tolerance": 0.02
+        },
+        {
+        "problem": "monte_carlo_option_pricing",
+        "function_name": "mc_call_price",
+        "signature": "S, K, r, T, sigma, n_paths",
+        "description": "Estimate the European call option price using Monte Carlo simulation under geometric Brownian motion.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "S": 100.0,
+                "K": 100.0,
+                "r": 0.05,
+                "T": 1.0,
+                "sigma": 0.2,
+                "n_paths": 50000
+            },
+            "output": 10.4
+            }
+        ],
+        "tolerance": 0.5
+        },
+        {
+        "problem": "portfolio_variance",
+        "function_name": "portfolio_variance",
+        "signature": "weights, cov",
+        "description": "Compute portfolio variance given asset weights and covariance matrix.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "weights": [0.4, 0.6],
+                "cov": [[0.04, 0.006], [0.006, 0.09]]
+            },
+            "output": 0.047
+            }
+        ],
+        "tolerance": 0.002
+        },
+        {
+        "problem": "value_at_risk_gaussian",
+        "function_name": "value_at_risk",
+        "signature": "mu, sigma, alpha",
+        "description": "Compute Value-at-Risk (VaR) under a Gaussian return assumption.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "mu": 0.001, "sigma": 0.02, "alpha": 0.05 },
+            "output": -0.0329
+            }
+        ],
+        "tolerance": 0.002
+        }
+
+
+
+
+
+
+
+    ,{
+        "problem": "michaelis_menten_rate",
+        "function_name": "reaction_rate",
+        "signature": "Vmax, Km, S",
+        "description": "Compute the reaction velocity using the Michaelis–Menten equation for enzyme kinetics.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "Vmax": 1.5, "Km": 0.3, "S": 0.5 },
+            "output": 0.9375
+            },
+            {
+            "type": "noisy",
+            "input": { "Vmax": 1.52, "Km": 0.29, "S": 0.48 },
+            "output": 0.96
+            }
+        ],
+        "tolerance": 0.02
+        },
+        {
+        "problem": "competitive_inhibition_rate",
+        "function_name": "competitive_inhibition_rate",
+        "signature": "Vmax, Km, S, I, Ki",
+        "description": "Compute reaction velocity for a competitively inhibited enzyme system.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "Vmax": 2.0,
+                "Km": 0.5,
+                "S": 0.6,
+                "I": 0.4,
+                "Ki": 0.2
+            },
+            "output": 0.7059
+            }
+        ],
+        "tolerance": 0.02
+        },
+        {
+        "problem": "gibbs_free_energy",
+        "function_name": "gibbs_energy",
+        "signature": "delta_H, delta_S, T",
+        "description": "Compute the Gibbs free energy change ΔG = ΔH − TΔS for a biochemical reaction.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "delta_H": -40.0,
+                "delta_S": -0.1,
+                "T": 298.15
+            },
+            "output": -10.185
+            }
+        ],
+        "tolerance": 0.1
+        },
+        {
+        "problem": "ligand_binding_fraction",
+        "function_name": "binding_fraction",
+        "signature": "L, Kd",
+        "description": "Compute the fraction of occupied binding sites given ligand concentration and dissociation constant.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "L": 2.0, "Kd": 0.5 },
+            "output": 0.8
+            },
+            {
+            "type": "noisy",
+            "input": { "L": 1.8, "Kd": 0.55 },
+            "output": 0.77
+            }
+        ],
+        "tolerance": 0.03
+        },
+        {
+        "problem": "hill_equation_cooperativity",
+        "function_name": "hill_fraction",
+        "signature": "L, Kd, n",
+        "description": "Compute binding fraction using the Hill equation to model cooperative binding.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "L": 1.5,
+                "Kd": 1.0,
+                "n": 2
+            },
+            "output": 0.692
+            }
+        ],
+        "tolerance": 0.02
+        }
+
+
+
+
+    ,{
+        "problem": "spectral_radius_power_iteration",
+        "function_name": "spectral_radius",
+        "signature": "A, num_iter",
+        "description": "Estimate the spectral radius (largest absolute eigenvalue) of a square matrix using the power iteration method.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "A": [[4, 1], [2, 3]],
+                "num_iter": 50
+            },
+            "output": 5.0
+            },
+            {
+            "type": "noisy",
+            "input": {
+                "A": [[4.001, 1], [2, 2.999]],
+                "num_iter": 60
+            },
+            "output": 5.0
+            }
+        ],
+        "tolerance": 1e-2
+        },
+        {
+        "problem": "condition_number_2norm",
+        "function_name": "condition_number",
+        "signature": "A",
+        "description": "Compute the condition number of a matrix using the 2-norm definition.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "A": [[1, 2], [3, 4]]
+            },
+            "output": 14.93
+            }
+        ],
+        "tolerance": 0.5
+        },
+        {
+        "problem": "least_squares_solution",
+        "function_name": "least_squares",
+        "signature": "A, b",
+        "description": "Solve an overdetermined linear system in the least-squares sense using normal equations.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "A": [[1, 1], [1, 2], [1, 3]],
+                "b": [1, 2, 2]
+            },
+            "output": [0.6667, 0.5]
+            }
+        ],
+        "tolerance": 1e-2
+        },
+        {
+        "problem": "qr_orthogonality_error",
+        "function_name": "qr_orthogonality_error",
+        "signature": "Q",
+        "description": "Compute the Frobenius norm of (QᵀQ − I) to assess loss of orthogonality in a QR factor.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "Q": [[0.7071, 0.7071], [0.7071, -0.7071]]
+            },
+            "output": 0.0
+            },
+            {
+            "type": "noisy",
+            "input": {
+                "Q": [[0.7072, 0.7070], [0.7070, -0.7072]]
+            },
+            "output": 1e-3
+            }
+        ],
+        "tolerance": 2e-3
+        },
+        {
+        "problem": "matrix_exponential_trace",
+        "function_name": "matrix_exponential_trace",
+        "signature": "A",
+        "description": "Approximate the trace of exp(A) for a 2×2 matrix using a truncated Taylor series.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "A": [[0, 1], [-1, 0]]
+            },
+            "output": 2.0
+            }
+        ],
+        "tolerance": 1e-2
+        },
+
+
+
+    {
+        "problem": "kepler_orbital_period",
+        "function_name": "orbital_period",
+        "signature": "a, M, G",
+        "description": "Compute the orbital period of a body using Kepler’s third law for a circular orbit.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "a": 1.5e11, "M": 1.989e30, "G": 6.67430e-11 },
+            "output": 3.1557e7
+            },
+            {
+            "type": "noisy",
+            "input": { "a": 1.49e11, "M": 1.989e30, "G": 6.67430e-11 },
+            "output": 3.13e7
+            }
+        ],
+        "tolerance": 5e5
+        },
+        {
+        "problem": "escape_velocity",
+        "function_name": "escape_velocity",
+        "signature": "M, r, G",
+        "description": "Compute the escape velocity from a spherical body using Newtonian gravity.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "M": 5.972e24, "r": 6.371e6, "G": 6.67430e-11 },
+            "output": 11186.0
+            }
+        ],
+        "tolerance": 50.0
+        },
+        {
+        "problem": "schwarzschild_radius",
+        "function_name": "schwarzschild_radius",
+        "signature": "M, G, c",
+        "description": "Compute the Schwarzschild radius of a non-rotating black hole.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "M": 1.989e30, "G": 6.67430e-11, "c": 2.998e8 },
+            "output": 2953.0
+            }
+        ],
+        "tolerance": 5.0
+        },
+        {
+        "problem": "stellar_luminosity",
+        "function_name": "stellar_luminosity",
+        "signature": "R, T, sigma",
+        "description": "Compute the luminosity of a star using the Stefan–Boltzmann law.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "R": 6.96e8, "T": 5778, "sigma": 5.670374419e-8 },
+            "output": 3.83e26
+            },
+            {
+            "type": "noisy",
+            "input": { "R": 6.95e8, "T": 5800, "sigma": 5.670374419e-8 },
+            "output": 3.85e26
+            }
+        ],
+        "tolerance": 5e24
+        },
+        {
+        "problem": "hubble_recession_velocity",
+        "function_name": "recession_velocity",
+        "signature": "distance, H0",
+        "description": "Compute the recession velocity of a galaxy using Hubble’s law.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "distance": 1.0e22, "H0": 2.27e-18 },
+            "output": 2.27e4
+            }
+        ],
+        "tolerance": 500.0
+        },
+
+    {
+        "problem": "arrhenius_rate_constant",
+        "function_name": "arrhenius_rate",
+        "signature": "A, Ea, T, R",
+        "description": "Compute the Arrhenius reaction rate constant k(T)=A*exp(-Ea/(R*T)).",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "A": 1e13, "Ea": 80000, "T": 298, "R": 8.314 },
+            "output": 2.646e-02
+            },
+            {
+            "type": "noisy",
+            "input": { "A": 1.01e13, "Ea": 79900, "T": 300, "R": 8.314 },
+            "output": 4.44e-02
+            }
+        ],
+        "tolerance": 1e-3
+        },
+        {
+        "problem": "equilibrium_extent",
+        "function_name": "equilibrium_extent",
+        "signature": "nA0, nB0, K",
+        "description": "Compute equilibrium extent xi for A ⇌ B given initial moles and equilibrium constant.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "nA0": 1.0, "nB0": 0.0, "K": 10.0 },
+            "output": 0.9091
+            }
+        ],
+        "tolerance": 1e-3
+        },
+        {
+        "problem": "beer_lambert_concentration",
+        "function_name": "concentration",
+        "signature": "absorbances, epsilon, path_length",
+        "description": "Compute solute concentration using Beer–Lambert law from noisy absorbance measurements.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "absorbances": [0.51, 0.49, 0.50], "epsilon": 1000, "path_length": 1.0 },
+            "output": 0.0005
+            }
+        ],
+        "tolerance": 1e-5
+        },
+        {
+        "problem": "nernst_potential",
+        "function_name": "nernst_potential",
+        "signature": "E0, Q, T, n, R, F",
+        "description": "Compute electrode potential using the Nernst equation.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "E0": 1.10, "Q": 10.0, "T": 298, "n": 2, "R": 8.314, "F": 96485 },
+            "output": 1.069
+            }
+        ],
+        "tolerance": 1e-3
+        },
+        {
+        "problem": "boltzmann_population_ratio",
+        "function_name": "boltzmann_ratio",
+        "signature": "E1, E2, T, kB",
+        "description": "Compute population ratio between two energy levels using Boltzmann statistics.",
+        "cases": [
+            {
+            "type": "core",
+            "input": { "E1": 0.0, "E2": 1e-20, "T": 300, "kB": 1.38e-23 },
+            "output": 0.786
+            }
+        ],
+        "tolerance": 1e-3
+    }
+
+
+
+
+
+
+    ,{
+      "problem": "heat_equation_1d_step",
+      "function_name": "heat_step",
+      "signature": "u, alpha, dx, dt",
+      "description": "Simulate one explicit Euler time step of the 1D heat equation du/dt = alpha * d2u/dx2 on a uniform grid.",
+      "inputs_description": {
+        "u": "Temperature values on a 1D grid",
+        "alpha": "Thermal diffusivity (>0)",
+        "dx": "Grid spacing (>0)",
+        "dt": "Time step (>0)"
+      },
+      "output_description": "Updated temperature field after one time step",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "u": [1, 2, 3, 2, 1], "alpha": 1.0, "dx": 1.0, "dt": 0.1 },
+          "output": [1.0, 1.8, 2.6, 1.8, 1.0]
+        },
+        {
+          "type": "edge",
+          "input": { "u": [5.0], "alpha": 1.0, "dx": 1.0, "dt": 0.1 },
+          "output": [5.0]
+        },
+        {
+          "type": "noisy",
+          "input": { "u": [1.0001, 1.9998, 3.0002, 2.0001, 0.9999], "alpha": 0.999, "dx": 1.001, "dt": 0.099 },
+          "output": [1.0001, 1.7999, 2.6000, 1.8001, 0.9999]
         }
       ],
-      "outputs": [
-        9.5,
-        0.375
-      ],
-      "tolerance": 1e-06
+      "tolerance": 1e-6
     },
+
     {
-      "problem": "matrix_trace",
-      "function_name": "matrix_trace",
-      "inputs": [
+      "problem": "ray_triangle_intersection",
+      "function_name": "ray_intersects_triangle",
+      "signature": "ray_origin, ray_dir, v0, v1, v2",
+      "description": "Determine whether a ray intersects a triangle in 3D using robust geometric testing.",
+      "cases": [
         {
-          "A": [
-            [
-              1,
-              2
-            ],
-            [
-              3,
-              4
-            ]
-          ]
+          "type": "core",
+          "input": {
+            "ray_origin": [0, 0, -1],
+            "ray_dir": [0, 0, 1],
+            "v0": [0,0,0], "v1": [1,0,0], "v2": [0,1,0]
+          },
+          "output": true
         },
         {
-          "A": [
-            [
-              5,
-              0,
-              0
-            ],
-            [
-              0,
-              -2,
-              0
-            ],
-            [
-              0,
-              0,
-              1
-            ]
-          ]
+          "type": "edge",
+          "input": {
+            "ray_origin": [0.2, 0.2, 0],
+            "ray_dir": [0, 0, 1],
+            "v0": [0,0,0], "v1": [1,0,0], "v2": [0,1,0]
+          },
+          "output": false
         }
-      ],
-      "outputs": [
-        5.0,
-        4.0
-      ],
-      "tolerance": 1e-06
-    },
-    {
-      "problem": "point_in_triangle",
-      "function_name": "point_in_triangle",
-      "inputs": [
-        {
-          "p": [
-            0.25,
-            0.25
-          ],
-          "a": [
-            0,
-            0
-          ],
-          "b": [
-            1,
-            0
-          ],
-          "c": [
-            0,
-            1
-          ]
-        },
-        {
-          "p": [
-            1.0,
-            1.0
-          ],
-          "a": [
-            0,
-            0
-          ],
-          "b": [
-            1,
-            0
-          ],
-          "c": [
-            0,
-            1
-          ]
-        }
-      ],
-      "outputs": [
-        true,
-        false
       ],
       "tolerance": 0.0
     },
+
     {
-      "problem": "finite_difference_gradient",
-      "function_name": "finite_diff_gradient",
-      "inputs": [
+      "problem": "dominant_eigenvalue",
+      "function_name": "dominant_eigenvalue",
+      "signature": "A, num_iters",
+      "description": "Compute the dominant eigenvalue of a real symmetric matrix using power iteration.",
+      "cases": [
         {
-          "y": [
-            0,
-            1,
-            4,
-            9
-          ],
-          "dx": 1.0
+          "type": "core",
+          "input": { "A": [[3,1],[1,3]], "num_iters": 30 },
+          "output": 4.0
         },
         {
-          "y": [
-            0,
-            1,
-            8,
-            27
-          ],
-          "dx": 1.0
+          "type": "edge",
+          "input": { "A": [[1,0],[0,1]], "num_iters": 15 },
+          "output": 1.0
         }
       ],
-      "outputs": [
-        [
-          1.0,
-          2.0,
-          4.0,
-          5.0
-        ],
-        [
-          1.0,
-          4.0,
-          13.0,
-          19.0
-        ]
-      ],
-      "tolerance": 1e-06
+      "tolerance": 1e-4
     },
+
     {
-      "problem": "gaussian_pdf",
-      "function_name": "gaussian_pdf",
-      "inputs": [
+      "problem": "quantum_probability_flux",
+      "function_name": "probability_flux",
+      "signature": "psi_real, psi_imag, dx, hbar, m",
+      "description": "Compute the probability flux j(x) = (hbar/m) * Im(psi*grad psi) in 1D.",
+      "cases": [
         {
-          "x": 0.0,
-          "mu": 0.0,
-          "sigma": 1.0
+          "type": "core",
+          "input": {
+            "psi_real": [1,0,-1],
+            "psi_imag": [0,1,0],
+            "dx": 1.0, "hbar": 1.0, "m": 1.0
+          },
+          "output": [0.0, -1.0, 0.0]
         },
         {
-          "x": 1.0,
-          "mu": 0.0,
-          "sigma": 2.0
+          "type": "edge",
+          "input": {
+            "psi_real": [1,1,1],
+            "psi_imag": [0,0,0],
+            "dx": 1.0, "hbar": 1.0, "m": 1.0
+          },
+          "output": [0.0,0.0,0.0]
         }
       ],
-      "outputs": [
-        0.3989422804014327,
-        0.17603266338214976
+      "tolerance": 1e-6
+    },
+
+    {
+      "problem": "newton_root",
+      "function_name": "newton_root",
+      "signature": "x0, num_iters",
+      "description": "Find a root of f(x)=x^3-x-2 using Newton–Raphson iteration.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "x0": 1.5, "num_iters": 10 },
+          "output": 1.5213797
+        },
+        {
+          "type": "edge",
+          "input": { "x0": -10.0, "num_iters": 20 },
+          "output": 1.5213797
+        }
       ],
-      "tolerance": 1e-06
+      "tolerance": 1e-5
     }
   ]
 }

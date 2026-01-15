@@ -12,6 +12,7 @@ from a2a.utils import get_message_text, new_agent_text_message
 
 from messenger import Messenger
 
+
 class EvalRequest(BaseModel):
     participants: dict[str, HttpUrl]
     config: dict[str, Any]
@@ -24,6 +25,11 @@ class Agent:
     def __init__(self):
         self.messenger = Messenger()
         self.benchmark = self.load_benchmark()
+        self.weights = {
+            "core": 1.0,
+            "edge": 0.75,
+            "noisy": 0.5,
+        }
 
     def validate_request(self, request: EvalRequest) -> tuple[bool, str]:
         missing = set(self.required_roles) - set(request.participants.keys())
@@ -38,8 +44,7 @@ class Agent:
         with path.open() as f:
             return json.load(f)
 
-
-    def execute_candidate(self, code: str, problem: dict) -> tuple[int, int]:
+    def execute_candidate(self, code: str, problem: dict) -> tuple[float, float]:
         env = {
             "__builtins__": {},
             "np": np,
@@ -47,41 +52,39 @@ class Agent:
             "math": math,
         }
 
-        # Execute candidate code
         exec(code, env, env)
 
         fn_name = problem["function_name"]
-        if fn_name not in env or not callable(env[fn_name]):
+        fn = env.get(fn_name)
+        if not callable(fn):
             raise RuntimeError(f"{fn_name} not defined")
 
-        fn = env[fn_name]
-
-        passed = 0
-        total = len(problem["inputs"])
+        score = 0.0
+        total = 0.0
         tol = problem["tolerance"]
 
-        for inp, expected in zip(problem["inputs"], problem["outputs"]):
+        for case in problem["cases"]:
+            w = self.weights.get(case["type"], 1.0)
+            total += w
             try:
-                result = fn(**inp)
-
+                result = fn(**case["input"])
+                expected = case["output"]
                 if isinstance(expected, list):
-                    ok = np.allclose(result, expected, atol=tol)
+                    ok = np.allclose(result, expected, atol=tol, rtol=0)
                 elif isinstance(expected, bool):
                     ok = result is expected
                 else:
                     ok = abs(result - expected) <= tol
-
                 if ok:
-                    passed += 1
+                    score += w
             except Exception:
                 pass
 
-        return passed, total
-    
+        return score, total
+
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
 
-        # Parse request
         try:
             request = EvalRequest.model_validate_json(input_text)
         except ValidationError:
@@ -101,40 +104,38 @@ class Agent:
         await updater.update_status(
             TaskState.working,
             new_agent_text_message(
-                f"Running Reflena scientific benchmark "
-                f"({len(problems)} problems)..."
+                f"Running Reflena scientific benchmark ({len(problems)} problems)..."
             ),
         )
 
-        total_passed = 0
-        total_tests = 0
+        total_score = 0.0
+        total_possible = 0.0
         details = []
 
         for idx, problem in enumerate(problems, start=1):
             await updater.update_status(
                 TaskState.working,
                 new_agent_text_message(
-                    f"[{idx}/{len(problems)}] "
-                    f"Evaluating {problem['problem']}"
+                    f"[{idx}/{len(problems)}] Evaluating {problem['problem']}"
                 ),
             )
 
             prompt = f"""
 You are implementing a scientific computing function.
 
-Problem:
-{problem['problem']}
+Problem description:
+{problem['description']}
 
 Function signature:
-def {problem['function_name']}( ... ):
+def {problem['function_name']}({problem['signature']}):
 
 Constraints:
-- Do not import any libraries
+- Do not import libraries
 - Do not print anything
 - Return ONLY valid Python code
-- The function must be numerically correct and stable
+- Numerical stability required
 
-Return ONLY the Python function implementation.
+Return ONLY the function implementation.
 """
 
             try:
@@ -143,22 +144,21 @@ Return ONLY the Python function implementation.
                     url=purple_url,
                     new_conversation=True,
                 )
-
-                passed, total = self.execute_candidate(code, problem)
+                score, possible = self.execute_candidate(code, problem)
             except Exception:
-                passed = 0
-                total = len(problem["inputs"])
+                score = 0.0
+                possible = sum(self.weights.get(c["type"], 1.0) for c in problem["cases"])
 
-            total_passed += passed
-            total_tests += total
+            total_score += score
+            total_possible += possible
 
             details.append({
                 "problem": problem["problem"],
-                "passed": passed,
-                "total": total,
+                "score": score,
+                "total": possible,
             })
 
-        accuracy = total_passed / total_tests if total_tests > 0 else 0.0
+        accuracy = total_score / total_possible if total_possible > 0 else 0.0
 
         await updater.add_artifact(
             name="Result",
@@ -168,8 +168,8 @@ Return ONLY the Python function implementation.
                         data={
                             "benchmark": self.benchmark["benchmark"],
                             "num_problems": len(details),
-                            "passed": total_passed,
-                            "total": total_tests,
+                            "score": total_score,
+                            "total": total_possible,
                             "accuracy": accuracy,
                             "details": details,
                         }
