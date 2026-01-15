@@ -73,16 +73,18 @@ class Agent:
         results = []
         for test in tests:
             try:
-                env = {
+                local_env = {
                     function_name: fn,
                     "np": np,
+                    "target": None,
                 }
-                exec(test, env, env)
+                exec(test, {}, local_env)
                 results.append(True)
             except Exception:
                 results.append(False)
 
         return results
+
 
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
