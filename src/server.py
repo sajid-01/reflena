@@ -24,16 +24,27 @@ def main():
     # See: https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/
     
     skill = AgentSkill(
-        id="a2a-reverse-eval",
-        name="Minimal A2A Reverse String Evaluation",
-        description="Evaluates a purple agent via A2A by checking deterministic string reversal.",
-        tags=["a2a", "benchmark", "evaluation"],
-        examples=["Reverse this string: hello"]
+        id="scicode-a2a-eval",
+        name="SciCode Agent-to-Agent Evaluation",
+        description=(
+            "Evaluates a solver agent on real scientific coding tasks from the SciCode benchmark "
+            "(arXiv:2407.13168) using Agent-to-Agent interaction, restricted code execution, "
+            "and test-based scoring."
+        ),
+        tags=["a2a", "benchmark", "scicode", "scientific-coding", "evaluation"],
+        examples=[
+            "Implement integrate_DOS for the linear tetrahedron method",
+        ],
     )
 
     agent_card = AgentCard(
         name="Reflena Green Agent",
-        description="Minimal Agent-to-Agent benchmark agent for AgentBeats leaderboard evaluation.",
+        description=(
+            "An Agent-to-Agent evaluation agent that benchmarks solver agents on real scientific "
+            "programming tasks from the SciCode dataset. The agent orchestrates task prompts, "
+            "executes returned code in a restricted environment, runs official test cases, "
+            "aggregates results, and reports scores to an AgentBeats leaderboard."
+        ),
         url=args.card_url or f"http://{args.host}:{args.port}/",
         version="1.0.0",
         default_input_modes=["text"],
