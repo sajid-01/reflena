@@ -10,52 +10,6 @@ import json
 import numpy as np
 from pathlib import Path
 
-def load_integrate_dos_problem(self):
-    path = Path("data/problems_all.jsonl")
-
-    with path.open() as f:
-        for line in f:
-            obj = json.loads(line)
-            if obj["problem_name"] == "linear_tetrahedron_method":
-                for step in obj["sub_steps"]:
-                    if step["step_number"] == "17.2":
-                        return step
-
-    raise RuntimeError("integrate_DOS sub-step not found")
-
-def execute_candidate(self, code: str, tests: list[str]):
-    safe_globals = {
-        "__builtins__": {},
-        "np": np,
-        "numpy": np,
-    }
-
-    safe_locals = {}
-
-    # Compile + execute candidate code
-    exec(code, safe_globals, safe_locals)
-
-    if "integrate_DOS" not in safe_locals:
-        raise RuntimeError("integrate_DOS not defined")
-
-    integrate_DOS = safe_locals["integrate_DOS"]
-
-    results = []
-    for test in tests:
-        try:
-            # `target` is provided by the dataset during evaluation
-            local_env = {
-                "integrate_DOS": integrate_DOS,
-                "np": np,
-                "target": None,
-            }
-            exec(test, {}, local_env)
-            results.append(True)
-        except Exception:
-            results.append(False)
-
-    return results
-
 
 class EvalRequest(BaseModel):
     """Request format sent by the AgentBeats platform to green agents."""
@@ -81,6 +35,53 @@ class Agent:
             return False, f"Missing config keys: {missing_config_keys}"
 
         return True, "ok"
+    
+    def load_integrate_dos_problem(self):
+        path = Path("data/problems_all.jsonl")
+
+        with path.open() as f:
+            for line in f:
+                obj = json.loads(line)
+                if obj["problem_name"] == "linear_tetrahedron_method":
+                    for step in obj["sub_steps"]:
+                        if step["step_number"] == "17.2":
+                            return step
+
+        raise RuntimeError("integrate_DOS sub-step not found")
+    
+    def execute_candidate(self, code: str, tests: list[str]):
+        safe_globals = {
+            "__builtins__": {},
+            "np": np,
+            "numpy": np,
+        }
+
+        safe_locals = {}
+
+        # Compile + execute candidate code
+        exec(code, safe_globals, safe_locals)
+
+        if "integrate_DOS" not in safe_locals:
+            raise RuntimeError("integrate_DOS not defined")
+
+        integrate_DOS = safe_locals["integrate_DOS"]
+
+        results = []
+        for test in tests:
+            try:
+                # `target` is provided by the dataset during evaluation
+                local_env = {
+                    "integrate_DOS": integrate_DOS,
+                    "np": np,
+                    "target": None,
+                }
+                exec(test, {}, local_env)
+                results.append(True)
+            except Exception:
+                results.append(False)
+
+        return results
+
 
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
