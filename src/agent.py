@@ -1,7 +1,7 @@
 from typing import Any
 from pydantic import BaseModel, HttpUrl, ValidationError
 from a2a.server.tasks import TaskUpdater
-from a2a.types import Message, TaskState, Part, TextPart, DataPart
+from a2a.types import Message, TaskState, Part, DataPart
 from a2a.utils import get_message_text, new_agent_text_message
 
 from messenger import Messenger
@@ -55,7 +55,13 @@ class Agent:
             raise RuntimeError(f"Invalid function name: {name}")
         return name
 
-    def execute_candidate(self, code: str, function_name: str, tests: list[str]):
+    def execute_candidate(
+        self,
+        code: str,
+        function_name: str,
+        tests: list[str],
+        debug: bool = False,
+    ):
         safe_globals = {
             "__builtins__": {},
             "np": np,
@@ -71,7 +77,16 @@ class Agent:
         fn = safe_locals[function_name]
 
         results = []
+        debug_info = {
+            "function_found": True,
+            "tests": [],
+        }
+
         for test in tests:
+            record = {
+                "test": test,
+                "passed": False,
+            }
             try:
                 local_env = {
                     function_name: fn,
@@ -79,12 +94,17 @@ class Agent:
                     "target": None,
                 }
                 exec(test, {}, local_env)
+                record["passed"] = True
+                if "target" in local_env:
+                    record["target"] = local_env["target"]
                 results.append(True)
-            except Exception:
+            except Exception as e:
+                record["error"] = str(e)
                 results.append(False)
 
-        return results
+            debug_info["tests"].append(record)
 
+        return results, debug_info
 
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
@@ -93,7 +113,9 @@ class Agent:
             request = EvalRequest.model_validate_json(input_text)
         except ValidationError:
             await updater.reject(
-                new_agent_text_message("Invalid request format. Expected EvalRequest JSON.")
+                new_agent_text_message(
+                    "Invalid request format. Expected EvalRequest JSON."
+                )
             )
             return
 
@@ -102,12 +124,16 @@ class Agent:
             await updater.reject(new_agent_text_message(msg))
             return
 
+        debug = bool(request.config.get("debug", False))
+        num_tasks = int(request.config.get("num_tasks", 3))
+
         await updater.update_status(
             TaskState.working,
-            new_agent_text_message("Running SciCode multi-task benchmark...")
+            new_agent_text_message(
+                f"Running SciCode multi-task benchmark (num_tasks={num_tasks}, debug={debug})"
+            )
         )
 
-        num_tasks = int(request.config.get("num_tasks", 3))
         steps = self.load_scicode_steps(limit=num_tasks)
 
         total_tests = 0
@@ -157,16 +183,56 @@ Return ONLY the Python function definition.
                     new_conversation=True,
                 )
 
-                results = self.execute_candidate(
+                if debug:
+                    await updater.update_status(
+                        TaskState.working,
+                        new_agent_text_message(
+                            f"[DEBUG] Received code for {function_name} ({len(code)} chars)"
+                        )
+                    )
+
+                results, debug_info = self.execute_candidate(
                     code,
                     function_name=function_name,
                     tests=step["test_cases"],
+                    debug=debug,
                 )
+
                 passed = sum(results)
                 total = len(results)
-            except Exception:
+
+                if debug:
+                    await updater.update_status(
+                        TaskState.working,
+                        new_agent_text_message(
+                            f"[DEBUG] {passed}/{total} tests passed for {function_name}"
+                        )
+                    )
+
+                    await updater.add_artifact(
+                        name=f"Debug-{step['problem']}-{step['sub_step']}",
+                        parts=[
+                            Part(
+                                root=DataPart(
+                                    data={
+                                        "function": function_name,
+                                        "code": code,
+                                        "execution": debug_info,
+                                    }
+                                )
+                            )
+                        ],
+                    )
+
+            except Exception as e:
                 passed = 0
                 total = len(step["test_cases"])
+
+                if debug:
+                    await updater.update_status(
+                        TaskState.failed,
+                        new_agent_text_message(f"[DEBUG] Execution failed: {e}")
+                    )
 
             total_passed += passed
             total_tests += total
