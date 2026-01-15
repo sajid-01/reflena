@@ -170,7 +170,7 @@ Return ONLY the function implementation.
                             "num_problems": len(details),
                             "score": total_score,
                             "total": total_possible,
-                            "accuracy": accuracy,
+                            "accuracy": round(accuracy * 100, 2),
                             "details": details,
                         }
                     )
