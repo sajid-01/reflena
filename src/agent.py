@@ -106,7 +106,8 @@ class Agent:
             new_agent_text_message("Running SciCode multi-task benchmark...")
         )
 
-        steps = self.load_scicode_steps(limit=3)
+        num_tasks = int(request.config.get("num_tasks", 3))
+        steps = self.load_scicode_steps(limit=num_tasks)
 
         total_tests = 0
         total_passed = 0
@@ -125,13 +126,27 @@ class Agent:
             )
 
             prompt = f"""
-Write Python code that defines the following function exactly:
+You are solving a scientific programming task from the SciCode benchmark.
+
+Write Python code that defines the following function EXACTLY
+(with the same name and parameters):
 
 {step['function_header']}
 
-The function must satisfy the test cases.
-Do NOT print anything.
-Return ONLY valid Python code.
+Rules:
+- Do NOT import anything unless explicitly required by the problem.
+- Do NOT print anything.
+- Do NOT include example usage or comments outside the function.
+- Return ONLY valid Python code.
+- The function must be deterministic and numerically stable.
+- The function must pass ALL provided test cases.
+
+Important:
+- Assume `numpy` is available as `np` if needed.
+- Do NOT define any other functions or classes.
+- Do NOT wrap the code in markdown.
+
+Return ONLY the Python function definition.
 """
 
             try:
