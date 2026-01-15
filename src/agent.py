@@ -2,6 +2,7 @@ from typing import Any
 import json
 import numpy as np
 from pathlib import Path
+import math
 
 from pydantic import BaseModel, HttpUrl, ValidationError
 
@@ -11,9 +12,7 @@ from a2a.utils import get_message_text, new_agent_text_message
 
 from messenger import Messenger
 
-
 class EvalRequest(BaseModel):
-    """Request format sent by the AgentBeats platform to green agents."""
     participants: dict[str, HttpUrl]
     config: dict[str, Any]
 
@@ -24,82 +23,70 @@ class Agent:
 
     def __init__(self):
         self.messenger = Messenger()
+        self.benchmark = self.load_benchmark()
 
     def validate_request(self, request: EvalRequest) -> tuple[bool, str]:
-        missing_roles = set(self.required_roles) - set(request.participants.keys())
-        if missing_roles:
-            return False, f"Missing roles: {missing_roles}"
+        missing = set(self.required_roles) - set(request.participants.keys())
+        if missing:
+            return False, f"Missing roles: {missing}"
         return True, "ok"
 
-    # ------------------------------------------------------------
-    # Load first sub-problem from each SciCode problem
-    # ------------------------------------------------------------
-    def load_first_scicode_steps(self):
-        path = Path("data/problems_all.jsonl")
-        steps = []
-
+    def load_benchmark(self) -> dict:
+        path = Path("data/reflena_benchmark.json")
+        if not path.exists():
+            raise RuntimeError("Benchmark file data/reflena_benchmark.json not found")
         with path.open() as f:
-            for line in f:
-                obj = json.loads(line)
-                sub_steps = obj.get("sub_steps", [])
-                if not sub_steps:
-                    continue
+            return json.load(f)
 
-                step = sub_steps[0]
-                if "function_header" not in step or "test_cases" not in step:
-                    continue
 
-                steps.append({
-                    "problem": obj["problem_name"],
-                    "sub_step": step["step_number"],
-                    "function_header": step["function_header"],
-                    "test_cases": step["test_cases"],
-                })
-
-        return steps
-
-    # ------------------------------------------------------------
-    # Execute candidate code against SciCode tests
-    # ------------------------------------------------------------
-    def execute_candidate(self, code: str, tests: list[str]):
-        # Shared execution environment (matches SciCode semantics)
+    def execute_candidate(self, code: str, problem: dict) -> tuple[int, int]:
         env = {
             "__builtins__": {},
             "np": np,
             "numpy": np,
+            "math": math,
         }
 
         # Execute candidate code
         exec(code, env, env)
 
-        # Ensure at least one callable exists
-        callables = [v for v in env.values() if callable(v)]
-        if not callables:
-            raise RuntimeError("No callable function defined")
+        fn_name = problem["function_name"]
+        if fn_name not in env or not callable(env[fn_name]):
+            raise RuntimeError(f"{fn_name} not defined")
 
-        results = []
-        for test in tests:
+        fn = env[fn_name]
+
+        passed = 0
+        total = len(problem["inputs"])
+        tol = problem["tolerance"]
+
+        for inp, expected in zip(problem["inputs"], problem["outputs"]):
             try:
-                exec(test, env, env)
-                results.append(True)
+                result = fn(**inp)
+
+                if isinstance(expected, list):
+                    ok = np.allclose(result, expected, atol=tol)
+                elif isinstance(expected, bool):
+                    ok = result is expected
+                else:
+                    ok = abs(result - expected) <= tol
+
+                if ok:
+                    passed += 1
             except Exception:
-                results.append(False)
+                pass
 
-        return results
-
-    # ------------------------------------------------------------
-    # Main A2A execution entrypoint
-    # ------------------------------------------------------------
+        return passed, total
+    
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
 
+        # Parse request
         try:
             request = EvalRequest.model_validate_json(input_text)
         except ValidationError:
             await updater.reject(
-                new_agent_text_message(
-                    "Invalid request format. Expected EvalRequest JSON."
-                )
+                new_agent_text_message("Invalid request format (expected EvalRequest)")
             )
             return
 
@@ -108,38 +95,46 @@ class Agent:
             await updater.reject(new_agent_text_message(msg))
             return
 
+        problems = self.benchmark["problems"]
+        purple_url = str(request.participants["purple"])
+
         await updater.update_status(
             TaskState.working,
             new_agent_text_message(
-                "Running SciCode benchmark (first sub-problem per problem)..."
+                f"Running Reflena scientific benchmark "
+                f"({len(problems)} problems)..."
             ),
         )
 
-        steps = self.load_first_scicode_steps()
-
-        total_tests = 0
         total_passed = 0
+        total_tests = 0
         details = []
 
-        purple_url = str(request.participants["purple"])
-
-        for idx, step in enumerate(steps, start=1):
+        for idx, problem in enumerate(problems, start=1):
             await updater.update_status(
                 TaskState.working,
                 new_agent_text_message(
-                    f"[{idx}/{len(steps)}] "
-                    f"Evaluating {step['problem']} / {step['sub_step']}"
+                    f"[{idx}/{len(problems)}] "
+                    f"Evaluating {problem['problem']}"
                 ),
             )
 
             prompt = f"""
-Write Python code that defines the following function exactly:
+You are implementing a scientific computing function.
 
-{step['function_header']}
+Problem:
+{problem['problem']}
 
-The function must satisfy the provided test cases.
-Do NOT print anything.
-Return ONLY valid Python code.
+Function signature:
+def {problem['function_name']}( ... ):
+
+Constraints:
+- Do not import any libraries
+- Do not print anything
+- Return ONLY valid Python code
+- The function must be numerically correct and stable
+
+Return ONLY the Python function implementation.
 """
 
             try:
@@ -149,19 +144,16 @@ Return ONLY valid Python code.
                     new_conversation=True,
                 )
 
-                results = self.execute_candidate(code, step["test_cases"])
-                passed = sum(results)
-                total = len(results)
+                passed, total = self.execute_candidate(code, problem)
             except Exception:
                 passed = 0
-                total = len(step["test_cases"])
+                total = len(problem["inputs"])
 
             total_passed += passed
             total_tests += total
 
             details.append({
-                "problem": step["problem"],
-                "sub_step": step["sub_step"],
+                "problem": problem["problem"],
                 "passed": passed,
                 "total": total,
             })
@@ -174,6 +166,7 @@ Return ONLY valid Python code.
                 Part(
                     root=DataPart(
                         data={
+                            "benchmark": self.benchmark["benchmark"],
                             "num_problems": len(details),
                             "passed": total_passed,
                             "total": total_tests,
