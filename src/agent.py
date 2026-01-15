@@ -10,9 +10,13 @@ from a2a.types import Message, TaskState, Part, DataPart
 from a2a.utils import get_message_text, new_agent_text_message
 
 from messenger import Messenger
+
+
 class EvalRequest(BaseModel):
     participants: dict[str, HttpUrl]
     config: dict[str, Any]
+
+
 class Agent:
     required_roles = ["purple"]
     required_config_keys = []
@@ -26,7 +30,6 @@ class Agent:
             return False, f"Missing roles: {missing}"
         return True, "ok"
 
-
     def load_scicode_problems(self, limit: int):
         path = Path("data/problems_all.jsonl")
         problems = []
@@ -34,16 +37,16 @@ class Agent:
         with path.open() as f:
             for line in f:
                 obj = json.loads(line)
-                sub_steps = [
+                steps = [
                     step for step in obj.get("sub_steps", [])
                     if "function_header" in step and "test_cases" in step
                 ]
-                if not sub_steps:
+                if not steps:
                     continue
 
                 problems.append({
                     "problem": obj["problem_name"],
-                    "steps": sub_steps,
+                    "steps": steps,
                 })
 
                 if len(problems) >= limit:
@@ -57,19 +60,29 @@ class Agent:
                 return __import__(name, *args, **kwargs)
             raise ImportError(name)
 
-        env = {
+        return {
             "__builtins__": {
                 "__import__": safe_import,
             },
             "np": np,
             "numpy": np,
         }
-        return env
 
     def execute_problem(self, code: str, steps: list[dict], debug: bool):
         env = self.build_shared_env()
 
+        # Execute candidate code
         exec(code, env, env)
+
+        # Fail fast if any required function is missing
+        missing_funcs = []
+        for step in steps:
+            fname = step["function_header"].split("def ", 1)[1].split("(")[0]
+            if fname not in env:
+                missing_funcs.append(fname)
+
+        if missing_funcs:
+            raise RuntimeError(f"Missing required functions: {missing_funcs}")
 
         total = 0
         passed = 0
@@ -77,18 +90,32 @@ class Agent:
         debug_tests = []
 
         for step in steps:
+            step_env = dict(env)  # shared env per sub-step
             step_passed = 0
             step_total = len(step["test_cases"])
 
             for test in step["test_cases"]:
                 try:
-                    local_env = dict(env)
-                    local_env["target"] = None
-                    exec(test, local_env, local_env)
+                    # Split setup and assertion
+                    if "assert" in test:
+                        setup, assertion = test.split("assert", 1)
+                        exec(setup, step_env, step_env)
+
+                        # Bind target from ref*
+                        step_env["target"] = None
+                        for ref in ("ref1", "ref2", "ref3", "ref4"):
+                            if ref in step_env:
+                                step_env["target"] = step_env[ref]
+
+                        exec("assert" + assertion, step_env, step_env)
+                    else:
+                        exec(test, step_env, step_env)
+
                     step_passed += 1
                     passed += 1
                     ok = True
                     err = None
+
                 except Exception as e:
                     ok = False
                     err = str(e)
@@ -99,7 +126,7 @@ class Agent:
                         "test": test,
                         "passed": ok,
                         "error": err,
-                        "target": local_env.get("target"),
+                        "target": step_env.get("target"),
                     })
 
             total += step_total
@@ -119,9 +146,7 @@ class Agent:
         try:
             request = EvalRequest.model_validate_json(input_text)
         except ValidationError:
-            await updater.reject(
-                new_agent_text_message("Invalid request format.")
-            )
+            await updater.reject(new_agent_text_message("Invalid request format."))
             return
 
         ok, msg = self.validate_request(request)
