@@ -159,7 +159,7 @@ Return ONLY the function implementation.
             })
 
         accuracy = total_score / total_possible if total_possible > 0 else 0.0
-
+        accuracy = round(accuracy * 100, 2)
         await updater.add_artifact(
             name="Result",
             parts=[
@@ -170,7 +170,7 @@ Return ONLY the function implementation.
                             "num_problems": len(details),
                             "score": total_score,
                             "total": total_possible,
-                            "accuracy": round(accuracy * 100, 2),
+                            "accuracy": accuracy,
                             "details": details,
                         }
                     )
