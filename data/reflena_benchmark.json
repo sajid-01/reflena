@@ -579,6 +579,496 @@
         }
       ],
       "tolerance": 1e-5
-    }
+    },
+
+    {
+        "problem": "fraunhofer_single_slit_intensity",
+        "function_name": "single_slit_intensity",
+        "signature": "a, wavelength, theta",
+        "description": "Compute normalized Fraunhofer diffraction intensity for a single slit.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "a": 1e-4,
+                "wavelength": 500e-9,
+                "theta": 0.0
+            },
+            "output": 1.0
+            },
+            {
+            "type": "noisy",
+            "input": {
+                "a": 1e-4,
+                "wavelength": 500e-9,
+                "theta": 0.01
+            },
+            "output": 0.93
+            }
+        ],
+        "tolerance": 0.05
+        },
+        {
+        "problem": "double_slit_interference_intensity",
+        "function_name": "double_slit_intensity",
+        "signature": "d, a, wavelength, theta",
+        "description": "Compute normalized Fraunhofer diffraction intensity for a double slit.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "d": 3e-4,
+                "a": 1e-4,
+                "wavelength": 600e-9,
+                "theta": 0.0
+            },
+            "output": 1.0
+            }
+        ],
+        "tolerance": 0.05
+        },
+        {
+        "problem": "brewster_angle",
+        "function_name": "brewster_angle",
+        "signature": "n1, n2",
+        "description": "Compute the Brewster angle for light incident from medium n1 into n2.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "n1": 1.0,
+                "n2": 1.5
+            },
+            "output": 0.9828
+            }
+        ],
+        "tolerance": 0.01
+        },
+        {
+        "problem": "fresnel_reflectance_unpolarized",
+        "function_name": "fresnel_reflectance",
+        "signature": "n1, n2, theta_i",
+        "description": "Compute Fresnel reflectance for unpolarized light at an interface.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "n1": 1.0,
+                "n2": 1.5,
+                "theta_i": 0.0
+            },
+            "output": 0.04
+            }
+        ],
+        "tolerance": 0.01
+        },
+        {
+        "problem": "gaussian_beam_waist_evolution",
+        "function_name": "beam_waist",
+        "signature": "w0, wavelength, z",
+        "description": "Compute Gaussian beam waist as a function of propagation distance.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "w0": 1e-3,
+                "wavelength": 632.8e-9,
+                "z": 0.0
+            },
+            "output": 1e-3
+            },
+            {
+            "type": "noisy",
+            "input": {
+                "w0": 1e-3,
+                "wavelength": 632.8e-9,
+                "z": 0.5
+            },
+            "output": 0.0011
+            }
+        ],
+        "tolerance": 2e-4
+    },
+
+    {
+        "problem": "logistic_growth_solution",
+        "function_name": "logistic_population",
+        "signature": "r, K, P0, t",
+        "description": "Compute population size at time t under logistic growth dynamics.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "r": 0.5,
+                "K": 1000.0,
+                "P0": 50.0,
+                "t": 10.0
+            },
+            "output": 882.5
+            }
+        ],
+        "tolerance": 5.0
+        },
+        {
+        "problem": "lotka_volterra_equilibrium",
+        "function_name": "predator_prey_equilibrium",
+        "signature": "alpha, beta, delta, gamma",
+        "description": "Compute the non-trivial equilibrium populations of a Lotka–Volterra predator–prey system.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "alpha": 1.0,
+                "beta": 0.1,
+                "delta": 0.075,
+                "gamma": 1.5
+            },
+            "output": [20.0, 10.0]
+            }
+        ],
+        "tolerance": 0.5
+        },
+        {
+        "problem": "metapopulation_persistence_threshold",
+        "function_name": "persistence_threshold",
+        "signature": "c, e",
+        "description": "Determine whether a metapopulation persists based on colonization and extinction rates.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "c": 0.4,
+                "e": 0.2
+            },
+            "output": true
+            },
+            {
+            "type": "noisy",
+            "input": {
+                "c": 0.18,
+                "e": 0.2
+            },
+            "output": false
+            }
+        ],
+        "tolerance": 0.0
+        },
+        {
+        "problem": "shannon_biodiversity_index",
+        "function_name": "shannon_index",
+        "signature": "counts",
+        "description": "Compute the Shannon biodiversity index for a community given species counts.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "counts": [50, 25, 25]
+            },
+            "output": 1.0397
+            }
+        ],
+        "tolerance": 0.02
+        },
+        {
+        "problem": "allee_effect_population_change",
+        "function_name": "allee_growth_rate",
+        "signature": "r, K, A, P",
+        "description": "Compute instantaneous population growth rate under a strong Allee effect.",
+        "cases": [
+            {
+            "type": "core",
+            "input": {
+                "r": 0.4,
+                "K": 1000.0,
+                "A": 100.0,
+                "P": 150.0
+            },
+            "output": 12.0
+            }
+        ],
+        "tolerance": 1.0
+        },
+
+        {
+            "problem": "hardy_weinberg_equilibrium",
+            "function_name": "genotype_frequencies",
+            "signature": "p",
+            "description": "Compute genotype frequencies under Hardy–Weinberg equilibrium given allele frequency p.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "p": 0.7
+                },
+                "output": [0.49, 0.42, 0.09]
+                }
+            ],
+            "tolerance": 0.01
+            },
+            {
+            "problem": "selection_allele_frequency_update",
+            "function_name": "next_generation_frequency",
+            "signature": "p, wAA, wAa, waa",
+            "description": "Compute allele frequency in the next generation under viability selection.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "p": 0.6,
+                    "wAA": 1.0,
+                    "wAa": 0.9,
+                    "waa": 0.8
+                },
+                "output": 0.626
+                }
+            ],
+            "tolerance": 0.01
+            },
+            {
+            "problem": "mutation_selection_balance",
+            "function_name": "mutation_selection_balance",
+            "signature": "mu, s",
+            "description": "Compute equilibrium frequency of a deleterious recessive allele under mutation–selection balance.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "mu": 1e-5,
+                    "s": 0.01
+                },
+                "output": 0.0316
+                }
+            ],
+            "tolerance": 0.002
+            },
+            {
+            "problem": "linkage_disequilibrium_decay",
+            "function_name": "ld_decay",
+            "signature": "D0, r, t",
+            "description": "Compute linkage disequilibrium after t generations with recombination rate r.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "D0": 0.25,
+                    "r": 0.1,
+                    "t": 10
+                },
+                "output": 0.087
+                }
+            ],
+            "tolerance": 0.01
+            },
+            {
+            "problem": "wright_fisher_variance",
+            "function_name": "genetic_drift_variance",
+            "signature": "p, N",
+            "description": "Compute variance in allele frequency due to genetic drift under the Wright–Fisher model.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "p": 0.5,
+                    "N": 100
+                },
+                "output": 0.00125
+                }
+            ],
+            "tolerance": 0.0002
+        },
+
+        {
+            "problem": "bloch_vector_from_density_matrix",
+            "function_name": "bloch_vector",
+            "signature": "rho",
+            "description": "Compute the Bloch vector (x, y, z) for a single-qubit density matrix.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "rho": [[0.5, 0.5], [0.5, 0.5]]
+                },
+                "output": [1.0, 0.0, 0.0]
+                }
+            ],
+            "tolerance": 0.02
+            },
+            {
+            "problem": "von_neumann_entropy",
+            "function_name": "von_neumann_entropy",
+            "signature": "rho",
+            "description": "Compute the von Neumann entropy of a quantum state given its density matrix.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "rho": [[0.5, 0.0], [0.0, 0.5]]
+                },
+                "output": 0.6931
+                }
+            ],
+            "tolerance": 0.01
+            },
+            {
+            "problem": "bell_state_concurrence",
+            "function_name": "concurrence",
+            "signature": "rho",
+            "description": "Compute the concurrence of a two-qubit Bell state density matrix.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "rho": [
+                    [0.5, 0.0, 0.0, 0.5],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.5, 0.0, 0.0, 0.5]
+                    ]
+                },
+                "output": 1.0
+                }
+            ],
+            "tolerance": 0.02
+            },
+            {
+            "problem": "quantum_fidelity",
+            "function_name": "quantum_fidelity",
+            "signature": "rho, sigma",
+            "description": "Compute the quantum state fidelity between two density matrices.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "rho": [[1.0, 0.0], [0.0, 0.0]],
+                    "sigma": [[0.5, 0.5], [0.5, 0.5]]
+                },
+                "output": 0.5
+                }
+            ],
+            "tolerance": 0.02
+            },
+            {
+            "problem": "hadamard_expectation_value",
+            "function_name": "hadamard_expectation",
+            "signature": "state",
+            "description": "Compute the expectation value of the Hadamard operator for a single-qubit pure state vector.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "state": [0.7071, 0.7071]
+                },
+                "output": 1.0
+                }
+            ],
+            "tolerance": 0.02
+        },
+
+        {
+            "problem": "hartree_fock_energy_two_electron",
+            "function_name": "hartree_fock_energy",
+            "signature": "h11, h22, J12, K12",
+            "description": "Compute the Hartree–Fock total energy for a minimal two-electron system.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "h11": -1.0,
+                    "h22": -0.8,
+                    "J12": 0.6,
+                    "K12": 0.2
+                },
+                "output": -1.6
+                }
+            ],
+            "tolerance": 0.05
+            },
+            {
+            "problem": "born_oppenheimer_potential",
+            "function_name": "bo_potential",
+            "signature": "R, A, B",
+            "description": "Compute a simplified Born–Oppenheimer potential energy curve using a Morse-like model.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "R": 1.0,
+                    "A": 5.0,
+                    "B": 1.5
+                },
+                "output": 0.776
+                },
+                {
+                "type": "noisy",
+                "input": {
+                    "R": 1.1,
+                    "A": 5.0,
+                    "B": 1.5
+                },
+                "output": 0.72
+                }
+            ],
+            "tolerance": 0.05
+            },
+            {
+            "problem": "partition_function_quantum_oscillator",
+            "function_name": "quantum_partition_function",
+            "signature": "omega, T, hbar, kB",
+            "description": "Compute the canonical partition function of a quantum harmonic oscillator.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "omega": 1.0,
+                    "T": 300.0,
+                    "hbar": 1.0,
+                    "kB": 1.0
+                },
+                "output": 1.0007
+                }
+            ],
+            "tolerance": 0.01
+            },
+            {
+            "problem": "radial_distribution_function_peak",
+            "function_name": "rdf_first_peak",
+            "signature": "r, g",
+            "description": "Estimate the position of the first peak of a radial distribution function.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "r": [0.8, 1.0, 1.2, 1.4, 1.6],
+                    "g": [0.2, 1.5, 3.0, 1.4, 0.5]
+                },
+                "output": 1.2
+                }
+            ],
+            "tolerance": 0.05
+            },
+            {
+            "problem": "transition_state_theory_rate",
+            "function_name": "tst_rate_constant",
+            "signature": "delta_G, T, kB, h",
+            "description": "Compute reaction rate constant using transition state theory.",
+            "cases": [
+                {
+                "type": "core",
+                "input": {
+                    "delta_G": 20.0,
+                    "T": 298.15,
+                    "kB": 1.0,
+                    "h": 1.0
+                },
+                "output": 0.0023
+                }
+            ],
+            "tolerance": 0.0005
+            }
+
+
+
+
+
   ]
 }
