@@ -55,26 +55,29 @@ class Agent:
             raise RuntimeError(f"Invalid function name: {name}")
         return name
 
+    def extract_target(self, test: str):
+        """
+        Extracts `target` from lines like:
+        ref1 = ...
+        """
+        for line in test.splitlines():
+            if line.strip().startswith("ref"):
+                _, rhs = line.split("=", 1)
+                return eval(rhs.strip(), {"np": np})
+        return None
+
     def execute_candidate(
         self,
         code: str,
         function_name: str,
         tests: list[str],
+        shared_env: dict,
         debug: bool = False,
     ):
-        safe_globals = {
-            "__builtins__": {},
-            "np": np,
-            "numpy": np,
-        }
-        safe_locals = {}
+        exec(code, shared_env, shared_env)
 
-        exec(code, safe_globals, safe_locals)
-
-        if function_name not in safe_locals:
+        if function_name not in shared_env:
             raise RuntimeError(f"{function_name} not defined")
-
-        fn = safe_locals[function_name]
 
         results = []
         debug_info = {
@@ -83,21 +86,18 @@ class Agent:
         }
 
         for test in tests:
-            record = {
-                "test": test,
-                "passed": False,
-            }
+            record = {"test": test, "passed": False}
+
             try:
-                local_env = {
-                    function_name: fn,
-                    "np": np,
-                    "target": None,
-                }
-                exec(test, {}, local_env)
+                target_value = self.extract_target(test)
+                shared_env["target"] = target_value
+
+                exec(test, shared_env, shared_env)
+
                 record["passed"] = True
-                if "target" in local_env:
-                    record["target"] = local_env["target"]
+                record["target"] = target_value
                 results.append(True)
+
             except Exception as e:
                 record["error"] = str(e)
                 results.append(False)
@@ -113,9 +113,7 @@ class Agent:
             request = EvalRequest.model_validate_json(input_text)
         except ValidationError:
             await updater.reject(
-                new_agent_text_message(
-                    "Invalid request format. Expected EvalRequest JSON."
-                )
+                new_agent_text_message("Invalid request format. Expected EvalRequest JSON.")
             )
             return
 
@@ -130,11 +128,17 @@ class Agent:
         await updater.update_status(
             TaskState.working,
             new_agent_text_message(
-                f"Running SciCode multi-task benchmark (num_tasks={num_tasks}, debug={debug})"
+                f"Running SciCode benchmark (num_tasks={num_tasks}, debug={debug})"
             )
         )
 
         steps = self.load_scicode_steps(limit=num_tasks)
+
+        shared_env = {
+            "__builtins__": {},
+            "np": np,
+            "numpy": np,
+        }
 
         total_tests = 0
         total_passed = 0
@@ -155,25 +159,15 @@ class Agent:
             prompt = f"""
 You are solving a scientific programming task from the SciCode benchmark.
 
-Write Python code that defines the following function EXACTLY
-(with the same name and parameters):
+Write Python code that defines the following function EXACTLY:
 
 {step['function_header']}
 
 Rules:
-- Do NOT import anything unless explicitly required by the problem.
 - Do NOT print anything.
-- Do NOT include example usage or comments outside the function.
+- Do NOT include extra comments or examples.
+- Assume `numpy` is available as `np`.
 - Return ONLY valid Python code.
-- The function must be deterministic and numerically stable.
-- The function must pass ALL provided test cases.
-
-Important:
-- Assume `numpy` is available as `np` if needed.
-- Do NOT define any other functions or classes.
-- Do NOT wrap the code in markdown.
-
-Return ONLY the Python function definition.
 """
 
             try:
@@ -183,18 +177,11 @@ Return ONLY the Python function definition.
                     new_conversation=True,
                 )
 
-                if debug:
-                    await updater.update_status(
-                        TaskState.working,
-                        new_agent_text_message(
-                            f"[DEBUG] Received code for {function_name} ({len(code)} chars)"
-                        )
-                    )
-
                 results, debug_info = self.execute_candidate(
-                    code,
+                    code=code,
                     function_name=function_name,
                     tests=step["test_cases"],
+                    shared_env=shared_env,
                     debug=debug,
                 )
 
@@ -202,13 +189,6 @@ Return ONLY the Python function definition.
                 total = len(results)
 
                 if debug:
-                    await updater.update_status(
-                        TaskState.working,
-                        new_agent_text_message(
-                            f"[DEBUG] {passed}/{total} tests passed for {function_name}"
-                        )
-                    )
-
                     await updater.add_artifact(
                         name=f"Debug-{step['problem']}-{step['sub_step']}",
                         parts=[
@@ -224,15 +204,9 @@ Return ONLY the Python function definition.
                         ],
                     )
 
-            except Exception as e:
+            except Exception:
                 passed = 0
                 total = len(step["test_cases"])
-
-                if debug:
-                    await updater.update_status(
-                        TaskState.failed,
-                        new_agent_text_message(f"[DEBUG] Execution failed: {e}")
-                    )
 
             total_passed += passed
             total_tests += total
