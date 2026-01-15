@@ -24,22 +24,22 @@ def main():
     # See: https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/
     
     skill = AgentSkill(
-        id="",
-        name="",
-        description="",
-        tags=[],
-        examples=[]
+        id="a2a-reverse-eval",
+        name="Minimal A2A Reverse String Evaluation",
+        description="Evaluates a purple agent via A2A by checking deterministic string reversal.",
+        tags=["a2a", "benchmark", "evaluation"],
+        examples=["Reverse this string: hello"]
     )
 
     agent_card = AgentCard(
-        name="",
-        description="",
+        name="Reflena Green Agent",
+        description="Minimal Agent-to-Agent benchmark agent for AgentBeats leaderboard evaluation.",
         url=args.card_url or f"http://{args.host}:{args.port}/",
-        version='1.0.0',
-        default_input_modes=['text'],
-        default_output_modes=['text'],
+        version="1.0.0",
+        default_input_modes=["text"],
+        default_output_modes=["text"],
         capabilities=AgentCapabilities(streaming=True),
-        skills=[skill]
+        skills=[skill],
     )
 
     request_handler = DefaultRequestHandler(
