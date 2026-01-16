@@ -4,6 +4,8 @@ Reflena is a Green Agent built for the AgentBeats ecosystem. This repository con
 
 The agent is designed to be simple to understand, easy to extend, and safe to run in automated evaluation pipelines.
 
+**AgentBeats Reflena Green Agent:** https://agentbeats.dev/sajid-01/reflena
+
 ---
 
 ## What this Agent Does
