@@ -27,8 +27,8 @@ class Agent:
         self.benchmark = self.load_benchmark()
         self.weights = {
             "core": 1.0,
-            "edge": 0.75,
-            "noisy": 0.5,
+            "edge": 1.25,
+            "noisy": 1.5,
         }
 
     def validate_request(self, request: EvalRequest) -> tuple[bool, str]:
