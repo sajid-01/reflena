@@ -1,87 +1,172 @@
-# A2A Agent Template
+# Reflena Green Agent
 
-A minimal template for building [A2A (Agent-to-Agent)](https://a2a-protocol.org/latest/) green agents compatible with the [AgentBeats](https://agentbeats.dev) platform.
+Reflena is a Green Agent built for the AgentBeats ecosystem. This repository contains the complete implementation of a Green Agent that evaluates Purple Agents in a controlled and secure execution environment. The focus of this project is correctness, reproducibility, and transparent evaluation rather than raw performance.
+
+The agent is designed to be simple to understand, easy to extend, and safe to run in automated evaluation pipelines.
+
+---
+
+## What this Agent Does
+
+Reflena acts as an evaluator. It receives trajectories and outputs produced by Purple Agents and assigns scores based on predefined evaluation rules. These rules measure factors such as task correctness, logical consistency, and adherence to constraints defined by the environment.
+
+All Purple Agent code is executed in a restricted sandbox to ensure safety and fairness. The Green Agent never executes untrusted code directly on the host system.
+
+---
+
+## Design Goals
+
+The main goals of this project are:
+
+Provide a clear and deterministic evaluation framework  
+Ensure safe execution of untrusted agent code  
+Support multiple task environments and difficulty levels  
+Make scoring explainable and auditable  
+Keep the codebase minimal and readable  
+
+---
 
 ## Project Structure
 
-```
 src/
-├─ server.py      # Server setup and agent card configuration
-├─ executor.py    # A2A request handling
-├─ agent.py       # Your agent implementation goes here
-└─ messenger.py   # A2A messaging utilities
+  server.py        Entry point that starts the Green Agent server and exposes metadata
+  executor.py      Handles execution requests and orchestrates evaluations
+  agent.py         Core evaluation logic and scoring rules
+  messenger.py     Utilities for communication and message formatting
+
+data/
+  reflena_benchmark.json   Benchmark definition containing tasks, test cases, and expected outputs
+
 tests/
-└─ test_agent.py  # Agent tests
-Dockerfile        # Docker configuration
-pyproject.toml    # Python dependencies
-.github/
-└─ workflows/
-   └─ test-and-publish.yml # CI workflow
+  test_agent.py    Basic tests to validate evaluation behavior
+
+Dockerfile         Container configuration for deployment
+pyproject.toml     Dependency and tooling configuration
+.github/workflows  Continuous integration workflows
+
+---
+
+## Benchmark Data
+
+The data folder contains `reflena_benchmark.json`, which defines the evaluation benchmark used by the Green Agent.
+
+This file includes:
+
+Tasks that describe the problem the Purple Agent must solve  
+Test cases associated with each task  
+Expected outputs used only by the Green Agent for evaluation  
+
+The expected outputs are never exposed to Purple Agents. Purple Agents only receive the task description and input data, while Reflena uses the hidden expected outputs to compute correctness and assign scores.
+
+This separation ensures fair evaluation and prevents leakage of ground truth information.
+
+---
+
+## Benchmark Format Example
+
+Below is a simplified example of a single benchmark entry from `reflena_benchmark.json`. This is provided for clarity and does not expose the full benchmark used during evaluation.
+
+```
+{
+  "problem": "spectral_radius_power_iteration",
+  "function_name": "spectral_radius",
+  "signature": "A, num_iter",
+  "description": "Estimate the spectral radius (largest absolute eigenvalue) of a square matrix using the power iteration method.",
+  "cases": [
+    {
+      "type": "core",
+      "input": {
+        "A": [[4, 1], [2, 3]],
+        "num_iter": 50
+      },
+      "output": 5.0
+    },
+    {
+      "type": "noisy",
+      "input": {
+        "A": [[4.001, 1], [2, 2.999]],
+        "num_iter": 60
+      },
+      "output": 5.0
+    }
+  ],
+  "tolerance": 1e-2
+}
 ```
 
-## Getting Started
+Each benchmark entry defines the expected function behavior, multiple test cases with varying difficulty or noise, and a tolerance value used during numerical comparison.
 
-1. **Create your repository** - Click "Use this template" to create your own repository from this template
+---
 
-2. **Implement your agent** - Add your agent logic to [`src/agent.py`](src/agent.py)
+## Running the Agent Locally
 
-3. **Configure your agent card** - Fill in your agent's metadata (name, skills, description) in [`src/server.py`](src/server.py)
+Clone the repository and move into the project directory.
 
-4. **Write your tests** - Add custom tests for your agent in [`tests/test_agent.py`](tests/test_agent.py)
+git clone https://github.com/sajid-01/reflena.git
+cd reflena
 
-For a concrete example of implementing a green agent using this template, see this [draft PR](https://github.com/RDI-Foundation/green-agent-template/pull/3).
+Install dependencies using uv.
 
-## Running Locally
-
-```bash
-# Install dependencies
 uv sync
 
-# Run the server
+Start the agent.
+
 uv run src/server.py
-```
+
+By default the agent will be available on port 9009.
+
+---
 
 ## Running with Docker
 
-```bash
-# Build the image
-docker build -t my-agent .
+Build the container image.
 
-# Run the container
-docker run -p 9009:9009 my-agent
-```
+docker build -t reflena .
+
+Run the container.
+
+docker run -p 9009:9009 reflena
+
+The Green Agent will now be accessible on port 9009.
+
+---
 
 ## Testing
 
-Run A2A conformance tests against your agent.
+The repository includes a small test suite to ensure the agent behaves as expected.
 
-```bash
-# Install test dependencies
+Install test dependencies.
+
 uv sync --extra test
 
-# Start your agent (uv or docker; see above)
+Run tests against a running agent.
 
-# Run tests against your running agent URL
-uv run pytest --agent-url http://localhost:9009
-```
+pytest --agent-url http://localhost:9009
 
-## Publishing
+---
 
-The repository includes a GitHub Actions workflow that automatically builds, tests, and publishes a Docker image of your agent to GitHub Container Registry.
+## Evaluation Logic
 
-If your agent needs API keys or other secrets, add them in Settings → Secrets and variables → Actions → Repository secrets. They'll be available as environment variables during CI tests.
+Reflena evaluates Purple Agents by analyzing their trajectories rather than only their final answers. This allows the agent to penalize incorrect reasoning, unsafe actions, or violations of environment constraints even if the final output appears correct.
 
-- **Push to `main`** → publishes `latest` tag:
-```
-ghcr.io/<your-username>/<your-repo-name>:latest
-```
+Scores can be weighted based on task difficulty, environment type, or noise level. This makes it possible to reward correct solutions on harder tasks more than trivial ones.
 
-- **Create a git tag** (e.g. `git tag v1.0.0 && git push origin v1.0.0`) → publishes version tags:
-```
-ghcr.io/<your-username>/<your-repo-name>:1.0.0
-ghcr.io/<your-username>/<your-repo-name>:1
-```
+---
 
-Once the workflow completes, find your Docker image in the Packages section (right sidebar of your repository). Configure the package visibility in package settings.
+## Customization
 
-> **Note:** Organization repositories may need package write permissions enabled manually (Settings → Actions → General). Version tags must follow [semantic versioning](https://semver.org/) (e.g., `v1.0.0`).
+To modify the evaluation behavior, edit src/agent.py.  
+To change agent metadata such as name, description, or supported skills, edit src/server.py.  
+Additional benchmark tasks or test cases can be added by extending reflena_benchmark.json in the data folder.
+
+The code is intentionally straightforward so that new evaluation strategies can be added without refactoring the entire system.
+
+---
+
+## Validation
+
+Purple Agent results are validated by comparing expected outcomes with observed trajectories and outputs. The Green Agent itself is validated through unit tests and controlled example runs where the correct score is known in advance.
+
+This two layer validation ensures both agent execution and agent evaluation are behaving correctly.
+
+---
