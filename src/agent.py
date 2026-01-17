@@ -50,15 +50,11 @@ class Agent:
         with path.open() as f:
             return json.load(f)
 
-    # -------------------------------
-    # Safe execution in subprocess
-    # -------------------------------
-
     @staticmethod
     def _execute_worker(code: str, problem: dict, weights: dict, queue: mp.Queue):
         try:
             env = {
-                "__builtins__": {},
+                "__builtins__": __builtins__,
                 "np": np,
                 "numpy": np,
                 "math": math,
@@ -120,10 +116,6 @@ class Agent:
 
         total = sum(self.weights.get(c["type"], 1.0) for c in problem["cases"])
         return 0.0, total
-
-    # -------------------------------
-    # Main benchmark loop
-    # -------------------------------
 
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
