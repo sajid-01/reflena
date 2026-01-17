@@ -1,174 +1,179 @@
-# Reflena Green Agent
+# Reflena
 
-Reflena is a Green Agent built for the AgentBeats ecosystem. This repository contains the complete implementation of a Green Agent that evaluates Purple Agents in a controlled and secure execution environment. The focus of this project is correctness, reproducibility, and transparent evaluation rather than raw performance.
+Reflena is a green agent benchmark built for the AgentX / AgentBeats competition, designed to evaluate the robustness of code generation agents under realistic and adversarial conditions.
 
-The agent is designed to be simple to understand, easy to extend, and safe to run in automated evaluation pipelines.
+Reflena evaluates how a purple agent behaves when exposed to edge cases, noisy inputs, numerical instability, and execution constraints. The benchmark emphasizes failure handling and stability, not just passing core tests.
 
-**AgentBeats Reflena Green Agent:** https://agentbeats.dev/sajid-01/reflena
-
----
-
-## What this Agent Does
-
-Reflena acts as an evaluator. It receives trajectories and outputs produced by Purple Agents and assigns scores based on predefined evaluation rules. These rules measure factors such as task correctness, logical consistency, and adherence to constraints defined by the environment.
-
-All Purple Agent code is executed in a restricted sandbox to ensure safety and fairness. The Green Agent never executes untrusted code directly on the host system.
+Important links
+- Green agent repository: https://github.com/sajid-01/reflena
+- AgentBeats benchmark page: https://agentbeats.dev/sajid-01/reflena
+- Leaderboard repository: https://github.com/sajid-01/reflena-leaderboard
 
 ---
 
-## Design Goals
+## Motivation
 
-The main goals of this project are:
+Code generation agents often succeed on curated unit tests but fail under slight perturbations, numerical instability, or strict runtime constraints. Reflena is designed to expose these weaknesses.
 
-Provide a clear and deterministic evaluation framework  
-Ensure safe execution of untrusted agent code  
-Support multiple task environments and difficulty levels  
-Make scoring explainable and auditable  
-Keep the codebase minimal and readable  
-
----
-
-## Project Structure
-
-src/
-  server.py        Entry point that starts the Green Agent server and exposes metadata
-  executor.py      Handles execution requests and orchestrates evaluations
-  agent.py         Core evaluation logic and scoring rules
-  messenger.py     Utilities for communication and message formatting
-
-data/
-  reflena_benchmark.json   Benchmark definition containing tasks, test cases, and expected outputs
-
-tests/
-  test_agent.py    Basic tests to validate evaluation behavior
-
-Dockerfile         Container configuration for deployment
-pyproject.toml     Dependency and tooling configuration
-.github/workflows  Continuous integration workflows
+The benchmark focuses on:
+- robustness over surface level correctness
+- deterministic evaluation without retries
+- explicit penalties for timeouts and runtime failures
+- scientific and numerical computing correctness
 
 ---
 
-## Benchmark Data
+## Agent Roles and Terminology
 
-The data folder contains `reflena_benchmark.json`, which defines the evaluation benchmark used by the Green Agent.
+Reflena follows AgentBeats role conventions.
 
-This file includes:
+### Green Agent (Reflena)
 
-Tasks that describe the problem the Purple Agent must solve  
-Test cases associated with each task  
-Expected outputs used only by the Green Agent for evaluation  
+The green agent acts as the benchmark controller. It owns the benchmark definition, dispatches tasks, enforces timeouts, executes candidate code in isolation, and produces evaluation artifacts.
 
-The expected outputs are never exposed to Purple Agents. Purple Agents only receive the task description and input data, while Reflena uses the hidden expected outputs to compute correctness and assign scores.
+### Purple Agent (Participant)
 
-This separation ensures fair evaluation and prevents leakage of ground truth information.
+The purple agent is the participant under evaluation. It receives problem descriptions and returns Python function implementations without visibility into test cases.
 
----
-
-## Benchmark Format Example
-
-Below is a simplified example of a single benchmark entry from `reflena_benchmark.json`. This is provided for clarity and does not expose the full benchmark used during evaluation.
-
-```
-{
-  "problem": "spectral_radius_power_iteration",
-  "function_name": "spectral_radius",
-  "signature": "A, num_iter",
-  "description": "Estimate the spectral radius (largest absolute eigenvalue) of a square matrix using the power iteration method.",
-  "cases": [
-    {
-      "type": "core",
-      "input": {
-        "A": [[4, 1], [2, 3]],
-        "num_iter": 50
-      },
-      "output": 5.0
-    },
-    {
-      "type": "noisy",
-      "input": {
-        "A": [[4.001, 1], [2, 2.999]],
-        "num_iter": 60
-      },
-      "output": 5.0
-    }
-  ],
-  "tolerance": 1e-2
-}
-```
-
-Each benchmark entry defines the expected function behavior, multiple test cases with varying difficulty or noise, and a tolerance value used during numerical comparison.
+The presence of a purple role is strictly validated before evaluation begins.
 
 ---
 
-## Running the Agent Locally
+## Benchmark Structure
 
-Clone the repository and move into the project directory.
+Benchmarks are defined using a JSON specification loaded at runtime. Each benchmark consists of multiple independent problems.
 
-git clone https://github.com/sajid-01/reflena.git
-cd reflena
-
-Install dependencies using uv.
-
-uv sync
-
-Start the agent.
-
-uv run src/server.py
-
-By default the agent will be available on port 9009.
+Each problem includes:
+- problem identifier and description
+- required function signature
+- numerical tolerance for validation
+- a set of test cases grouped by difficulty
 
 ---
 
-## Running with Docker
+## Test Case Taxonomy
 
-Build the container image.
+Each test case belongs to exactly one category.
 
-docker build -t reflena .
+Type descriptions:
+- core: standard expected inputs
+- edge: boundary and corner cases
+- noisy: perturbed or adversarial inputs
+- hard: numerically or logically difficult cases
 
-Run the container.
-
-docker run -p 9009:9009 reflena
-
-The Green Agent will now be accessible on port 9009.
-
----
-
-## Testing
-
-The repository includes a small test suite to ensure the agent behaves as expected.
-
-Install test dependencies.
-
-uv sync --extra test
-
-Run tests against a running agent.
-
-pytest --agent-url http://localhost:9009
+This taxonomy allows Reflena to differentiate between correctness and robustness.
 
 ---
 
-## Evaluation Logic
+## Scoring Model
 
-Reflena evaluates Purple Agents by analyzing their trajectories rather than only their final answers. This allows the agent to penalize incorrect reasoning, unsafe actions, or violations of environment constraints even if the final output appears correct.
+Reflena uses weighted correctness scoring.
 
-Scores can be weighted based on task difficulty, environment type, or noise level. This makes it possible to reward correct solutions on harder tasks more than trivial ones.
+Case weights:
+- core = 1.0
+- edge = 1.25
+- noisy = 1.5
+- hard = 2.0
+
+Score computation:
+
+For a single problem:
+problem_score = sum(weight_i for each correctly solved case i)
+problem_total = sum(weight_i for all cases)
+
+For the full benchmark:
+accuracy = (total_score / total_possible) * 100
+
+The final accuracy is rounded to two decimal places.
+
+Passing only core tests cannot outperform a solution that handles difficult cases reliably.
 
 ---
 
-## Customization
+## Execution and Safety Model
 
-To modify the evaluation behavior, edit src/agent.py.  
-To change agent metadata such as name, description, or supported skills, edit src/server.py.  
-Additional benchmark tasks or test cases can be added by extending reflena_benchmark.json in the data folder.
+Reflena enforces two independent safety constraints.
 
-The code is intentionally straightforward so that new evaluation strategies can be added without refactoring the entire system.
+Purple agent response timeout:
+- maximum response wait time: 30 seconds
+- timeout results in zero score for the problem
+
+Code execution isolation:
+- candidate code is executed in a separate OS process
+- maximum execution time: 5 seconds
+- on timeout or crash, the process is terminated and the problem score is zeroed
+
+This prevents runaway execution and ensures deterministic evaluation.
 
 ---
 
-## Validation
+## Evaluation Flow
 
-Purple Agent results are validated by comparing expected outcomes with observed trajectories and outputs. The Green Agent itself is validated through unit tests and controlled example runs where the correct score is known in advance.
+High level evaluation logic:
 
-This two layer validation ensures both agent execution and agent evaluation are behaving correctly.
+load benchmark
+validate agent roles
+
+for each problem:
+    send prompt to purple agent with timeout
+    if no response:
+        score = 0
+        continue
+
+    execute returned code in isolated process
+    if execution fails or times out:
+        score = 0
+        continue
+
+    evaluate all test cases
+    accumulate weighted score
 
 ---
+
+## Output Artifacts
+
+After evaluation, Reflena emits a structured JSON artifact containing:
+- benchmark name
+- number of problems
+- raw score
+- total possible score
+- final accuracy percentage
+- per problem score breakdown
+
+This artifact is consumed by the Reflena leaderboard and rendered on the AgentBeats UI.
+
+---
+
+## Leaderboard Integration
+
+Reflena is designed to integrate with a separate leaderboard repository.
+
+Workflow summary:
+1. Green and purple agents are registered on AgentBeats using Docker images
+2. Purple agents receive unique AgentBeats IDs
+3. IDs are configured in scenario.toml with role purple
+4. Commits to the leaderboard repository trigger GitHub Actions
+5. Evaluations run automatically
+6. Result JSON is queried by the green agent
+7. Leaderboard UI updates accordingly
+
+Benchmark logic and competition orchestration are intentionally decoupled.
+
+---
+
+## Design Principles
+
+- robustness over happy path correctness
+- deterministic and repeatable evaluation
+- strict timeout and isolation enforcement
+- explicit scoring penalties for failures
+- AgentBeats native integration
+
+---
+
+## Intended Audience
+
+- AgentX and AgentBeats competition participants
+- LLM evaluation engineers
+- agent benchmark designers
+- researchers studying robustness in code generation
