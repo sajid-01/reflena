@@ -53,8 +53,21 @@ class Agent:
     @staticmethod
     def _execute_worker(code: str, problem: dict, weights: dict, queue: mp.Queue):
         try:
+            SAFE_BUILTINS = {
+                "abs": abs,
+                "min": min,
+                "max": max,
+                "sum": sum,
+                "range": range,
+                "len": len,
+                "enumerate": enumerate,
+                "float": float,
+                "int": int,
+                "bool": bool,
+            }
+
             env = {
-                "__builtins__": {},
+                "__builtins__": SAFE_BUILTINS,
                 "np": np,
                 "numpy": np,
                 "math": math,
