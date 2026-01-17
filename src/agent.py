@@ -4,6 +4,7 @@ import numpy as np
 from pathlib import Path
 import math
 import asyncio
+import multiprocessing as mp
 
 from pydantic import BaseModel, HttpUrl, ValidationError
 
@@ -23,7 +24,9 @@ class Agent:
     required_roles = ["purple"]
     required_config_keys = []
 
-    PURPLE_TIMEOUT = 30.0
+    # time limits (seconds)
+    PURPLE_TIMEOUT = 30.0          # waiting for agent response
+    EXECUTION_TIMEOUT = 5.0        # running candidate code
 
     def __init__(self):
         self.messenger = Messenger()
@@ -47,98 +50,72 @@ class Agent:
         with path.open() as f:
             return json.load(f)
 
-    async def execute_candidate_debug(
-        self,
-        code: str,
-        problem: dict,
-        updater: TaskUpdater,
-    ) -> tuple[float, float]:
-        env = {
-            "__builtins__": __builtins__,
-            "math": math,
-            "np": np,
-            "numpy": np,
-        }
-
-        await updater.update_status(
-            TaskState.working,
-            new_agent_text_message("DEBUG exec starting")
-        )
-
+    @staticmethod
+    def _execute_worker(code: str, problem: dict, weights: dict, queue: mp.Queue):
         try:
+            env = {
+                "__builtins__": __builtins__,
+                "np": np,
+                "numpy": np,
+                "math": math,
+            }
+
             exec(code, env, env)
-            await updater.update_status(
-                TaskState.working,
-                new_agent_text_message("DEBUG exec succeeded")
-            )
-        except Exception as e:
-            await updater.update_status(
-                TaskState.working,
-                new_agent_text_message(f"DEBUG exec failed: {repr(e)}")
-            )
-            return 0.0, 0.0
 
-        fn_name = problem["function_name"]
-        fn = env.get(fn_name)
+            fn_name = problem["function_name"]
+            fn = env.get(fn_name)
+            if not callable(fn):
+                raise RuntimeError(f"{fn_name} not defined")
 
-        await updater.update_status(
-            TaskState.working,
-            new_agent_text_message(f"DEBUG function lookup: {fn_name} -> {fn}")
+            score = 0.0
+            total = 0.0
+            tol = problem["tolerance"]
+
+            for case in problem["cases"]:
+                w = weights.get(case["type"], 1.0)
+                total += w
+                try:
+                    result = fn(**case["input"])
+                    expected = case["output"]
+                    if isinstance(expected, list):
+                        ok = np.allclose(result, expected, atol=tol, rtol=0)
+                    elif isinstance(expected, bool):
+                        ok = result is expected
+                    else:
+                        ok = abs(result - expected) <= tol
+                    if ok:
+                        score += w
+                except Exception:
+                    pass
+
+            queue.put((score, total))
+
+        except Exception:
+            queue.put((0.0, 0.0))
+
+    def execute_candidate_with_timeout(
+        self, code: str, problem: dict
+    ) -> tuple[float, float]:
+        queue = mp.Queue()
+        proc = mp.Process(
+            target=self._execute_worker,
+            args=(code, problem, self.weights, queue),
         )
 
-        if not callable(fn):
-            await updater.update_status(
-                TaskState.working,
-                new_agent_text_message("DEBUG function not callable")
-            )
-            return 0.0, 0.0
+        proc.start()
+        proc.join(self.EXECUTION_TIMEOUT)
 
-        score = 0.0
-        total = 0.0
-        tol = problem["tolerance"]
+        if proc.is_alive():
+            proc.terminate()
+            proc.join()
+            total = sum(self.weights.get(c["type"], 1.0) for c in problem["cases"])
+            return 0.0, total
 
-        for case in problem["cases"]:
-            w = self.weights.get(case["type"], 1.0)
-            total += w
+        if not queue.empty():
+            return queue.get()
 
-            try:
-                result = fn(**case["input"])
-                expected = case["output"]
-
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(
-                        f"DEBUG input={case['input']} result={result} expected={expected}"
-                    ),
-                )
-
-                if isinstance(expected, list):
-                    ok = np.allclose(result, expected, atol=tol, rtol=0)
-                elif isinstance(expected, bool):
-                    ok = result is expected
-                else:
-                    ok = abs(result - expected) <= tol
-
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(f"DEBUG comparison ok={ok}")
-                )
-
-                if ok:
-                    score += w
-
-            except Exception as e:
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(f"DEBUG exception during call: {repr(e)}")
-                )
-
-        await updater.update_status(
-            TaskState.working,
-            new_agent_text_message(f"DEBUG problem score={score} total={total}")
-        )
-
-        return score, total
+        total = sum(self.weights.get(c["type"], 1.0) for c in problem["cases"])
+        return 0.0, total
 
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
@@ -210,18 +187,12 @@ Return ONLY the function implementation.
                     timeout=self.PURPLE_TIMEOUT,
                 )
 
-                score, _ = await self.execute_candidate_debug(
-                    code, problem, updater
-                )
+                score, _ = self.execute_candidate_with_timeout(code, problem)
 
             except asyncio.TimeoutError:
                 score = 0.0
 
-            except Exception as e:
-                await updater.update_status(
-                    TaskState.working,
-                    new_agent_text_message(f"DEBUG outer exception: {repr(e)}")
-                )
+            except Exception:
                 score = 0.0
 
             total_score += score
@@ -255,3 +226,4 @@ Return ONLY the function implementation.
         )
 
         await updater.complete()
+
