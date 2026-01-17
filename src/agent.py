@@ -3,6 +3,8 @@ import json
 import numpy as np
 from pathlib import Path
 import math
+import asyncio
+import multiprocessing as mp
 
 from pydantic import BaseModel, HttpUrl, ValidationError
 
@@ -21,6 +23,10 @@ class EvalRequest(BaseModel):
 class Agent:
     required_roles = ["purple"]
     required_config_keys = []
+
+    # time limits (seconds)
+    PURPLE_TIMEOUT = 30.0          # waiting for agent response
+    EXECUTION_TIMEOUT = 5.0        # running candidate code
 
     def __init__(self):
         self.messenger = Messenger()
@@ -44,43 +50,72 @@ class Agent:
         with path.open() as f:
             return json.load(f)
 
-    def execute_candidate(self, code: str, problem: dict) -> tuple[float, float]:
-        env = {
-            "__builtins__": {},
-            "np": np,
-            "numpy": np,
-            "math": math,
-        }
+    @staticmethod
+    def _execute_worker(code: str, problem: dict, weights: dict, queue: mp.Queue):
+        try:
+            env = {
+                "__builtins__": {},
+                "np": np,
+                "numpy": np,
+                "math": math,
+            }
 
-        exec(code, env, env)
+            exec(code, env, env)
 
-        fn_name = problem["function_name"]
-        fn = env.get(fn_name)
-        if not callable(fn):
-            raise RuntimeError(f"{fn_name} not defined")
+            fn_name = problem["function_name"]
+            fn = env.get(fn_name)
+            if not callable(fn):
+                raise RuntimeError(f"{fn_name} not defined")
 
-        score = 0.0
-        total = 0.0
-        tol = problem["tolerance"]
+            score = 0.0
+            total = 0.0
+            tol = problem["tolerance"]
 
-        for case in problem["cases"]:
-            w = self.weights.get(case["type"], 1.0)
-            total += w
-            try:
-                result = fn(**case["input"])
-                expected = case["output"]
-                if isinstance(expected, list):
-                    ok = np.allclose(result, expected, atol=tol, rtol=0)
-                elif isinstance(expected, bool):
-                    ok = result is expected
-                else:
-                    ok = abs(result - expected) <= tol
-                if ok:
-                    score += w
-            except Exception:
-                pass
+            for case in problem["cases"]:
+                w = weights.get(case["type"], 1.0)
+                total += w
+                try:
+                    result = fn(**case["input"])
+                    expected = case["output"]
+                    if isinstance(expected, list):
+                        ok = np.allclose(result, expected, atol=tol, rtol=0)
+                    elif isinstance(expected, bool):
+                        ok = result is expected
+                    else:
+                        ok = abs(result - expected) <= tol
+                    if ok:
+                        score += w
+                except Exception:
+                    pass
 
-        return score, total
+            queue.put((score, total))
+
+        except Exception:
+            queue.put((0.0, 0.0))
+
+    def execute_candidate_with_timeout(
+        self, code: str, problem: dict
+    ) -> tuple[float, float]:
+        queue = mp.Queue()
+        proc = mp.Process(
+            target=self._execute_worker,
+            args=(code, problem, self.weights, queue),
+        )
+
+        proc.start()
+        proc.join(self.EXECUTION_TIMEOUT)
+
+        if proc.is_alive():
+            proc.terminate()
+            proc.join()
+            total = sum(self.weights.get(c["type"], 1.0) for c in problem["cases"])
+            return 0.0, total
+
+        if not queue.empty():
+            return queue.get()
+
+        total = sum(self.weights.get(c["type"], 1.0) for c in problem["cases"])
+        return 0.0, total
 
     async def run(self, message: Message, updater: TaskUpdater) -> None:
         input_text = get_message_text(message)
@@ -138,16 +173,27 @@ Constraints:
 Return ONLY the function implementation.
 """
 
+            possible = sum(
+                self.weights.get(c["type"], 1.0) for c in problem["cases"]
+            )
+
             try:
-                code = await self.messenger.talk_to_agent(
-                    message=prompt,
-                    url=purple_url,
-                    new_conversation=True,
+                code = await asyncio.wait_for(
+                    self.messenger.talk_to_agent(
+                        message=prompt,
+                        url=purple_url,
+                        new_conversation=True,
+                    ),
+                    timeout=self.PURPLE_TIMEOUT,
                 )
-                score, possible = self.execute_candidate(code, problem)
+
+                score, _ = self.execute_candidate_with_timeout(code, problem)
+
+            except asyncio.TimeoutError:
+                score = 0.0
+
             except Exception:
                 score = 0.0
-                possible = sum(self.weights.get(c["type"], 1.0) for c in problem["cases"])
 
             total_score += score
             total_possible += possible
@@ -160,6 +206,7 @@ Return ONLY the function implementation.
 
         accuracy = total_score / total_possible if total_possible > 0 else 0.0
         accuracy = round(accuracy * 100, 2)
+
         await updater.add_artifact(
             name="Result",
             parts=[
