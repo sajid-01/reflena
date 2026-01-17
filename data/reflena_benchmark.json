@@ -1,459 +1,2187 @@
 {
   "benchmark": "reflena-scientific-v1",
   "problems": [
+    {
+      "problem": "quantum_heat_capacity_oscillator",
+      "function_name": "quantum_heat_capacity",
+      "signature": "omega, T, hbar, kB",
+      "description": "Compute the heat capacity of a quantum harmonic oscillator at temperature T.",
+      "cases": [
         {
-        "problem": "black_scholes_call_price",
-        "function_name": "bs_call_price",
-        "signature": "S, K, r, T, sigma",
-        "description": "Compute the Black–Scholes price of a European call option.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "S": 100.0, "K": 100.0, "r": 0.05, "T": 1.0, "sigma": 0.2 },
-            "output": 10.45
-            },
-            {
-            "type": "noisy",
-            "input": { "S": 102.0, "K": 100.0, "r": 0.048, "T": 0.95, "sigma": 0.21 },
-            "output": 11.3
-            }
-        ],
-        "tolerance": 0.15
+          "type": "core",
+          "input": {
+            "omega": 1.0,
+            "T": 1.0,
+            "hbar": 1.0,
+            "kB": 1.0
+          },
+          "output": 0.92
         },
         {
-        "problem": "implied_volatility_newton",
-        "function_name": "implied_volatility",
-        "signature": "price, S, K, r, T",
-        "description": "Estimate implied volatility of a European call option using Newton–Raphson iteration.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "price": 10.45, "S": 100.0, "K": 100.0, "r": 0.05, "T": 1.0 },
-            "output": 0.2
-            }
-        ],
-        "tolerance": 0.02
-        },
-        {
-        "problem": "monte_carlo_option_pricing",
-        "function_name": "mc_call_price",
-        "signature": "S, K, r, T, sigma, n_paths",
-        "description": "Estimate the European call option price using Monte Carlo simulation under geometric Brownian motion.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "S": 100.0,
-                "K": 100.0,
-                "r": 0.05,
-                "T": 1.0,
-                "sigma": 0.2,
-                "n_paths": 50000
-            },
-            "output": 10.4
-            }
-        ],
-        "tolerance": 0.5
-        },
-        {
-        "problem": "portfolio_variance",
-        "function_name": "portfolio_variance",
-        "signature": "weights, cov",
-        "description": "Compute portfolio variance given asset weights and covariance matrix.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "weights": [0.4, 0.6],
-                "cov": [[0.04, 0.006], [0.006, 0.09]]
-            },
-            "output": 0.047
-            }
-        ],
-        "tolerance": 0.002
-        },
-        {
-        "problem": "value_at_risk_gaussian",
-        "function_name": "value_at_risk",
-        "signature": "mu, sigma, alpha",
-        "description": "Compute Value-at-Risk (VaR) under a Gaussian return assumption.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "mu": 0.001, "sigma": 0.02, "alpha": 0.05 },
-            "output": -0.0329
-            }
-        ],
-        "tolerance": 0.002
+          "type": "edge",
+          "input": {
+            "omega": 1.0,
+            "T": 0.05,
+            "hbar": 1.0,
+            "kB": 1.0
+          },
+          "output": 0.02
         }
-
-
-
-
-
-
-
-    ,{
-        "problem": "michaelis_menten_rate",
-        "function_name": "reaction_rate",
-        "signature": "Vmax, Km, S",
-        "description": "Compute the reaction velocity using the Michaelis–Menten equation for enzyme kinetics.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "Vmax": 1.5, "Km": 0.3, "S": 0.5 },
-            "output": 0.9375
-            },
-            {
-            "type": "noisy",
-            "input": { "Vmax": 1.52, "Km": 0.29, "S": 0.48 },
-            "output": 0.96
-            }
-        ],
-        "tolerance": 0.02
-        },
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "coordination_number_from_rdf",
+      "function_name": "coordination_number",
+      "signature": "r, g, rho",
+      "description": "Compute the coordination number by integrating the radial distribution function up to its first minimum.",
+      "cases": [
         {
-        "problem": "competitive_inhibition_rate",
-        "function_name": "competitive_inhibition_rate",
-        "signature": "Vmax, Km, S, I, Ki",
-        "description": "Compute reaction velocity for a competitively inhibited enzyme system.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "Vmax": 2.0,
-                "Km": 0.5,
-                "S": 0.6,
-                "I": 0.4,
-                "Ki": 0.2
-            },
-            "output": 0.7059
-            }
-        ],
-        "tolerance": 0.02
-        },
-        {
-        "problem": "gibbs_free_energy",
-        "function_name": "gibbs_energy",
-        "signature": "delta_H, delta_S, T",
-        "description": "Compute the Gibbs free energy change ΔG = ΔH − TΔS for a biochemical reaction.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "delta_H": -40.0,
-                "delta_S": -0.1,
-                "T": 298.15
-            },
-            "output": -10.185
-            }
-        ],
-        "tolerance": 0.1
-        },
-        {
-        "problem": "ligand_binding_fraction",
-        "function_name": "binding_fraction",
-        "signature": "L, Kd",
-        "description": "Compute the fraction of occupied binding sites given ligand concentration and dissociation constant.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "L": 2.0, "Kd": 0.5 },
-            "output": 0.8
-            },
-            {
-            "type": "noisy",
-            "input": { "L": 1.8, "Kd": 0.55 },
-            "output": 0.77
-            }
-        ],
-        "tolerance": 0.03
-        },
-        {
-        "problem": "hill_equation_cooperativity",
-        "function_name": "hill_fraction",
-        "signature": "L, Kd, n",
-        "description": "Compute binding fraction using the Hill equation to model cooperative binding.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "L": 1.5,
-                "Kd": 1.0,
-                "n": 2
-            },
-            "output": 0.692
-            }
-        ],
-        "tolerance": 0.02
+          "type": "core",
+          "input": {
+            "r": [0.9, 1.0, 1.1, 1.2, 1.3],
+            "g": [0.0, 1.5, 3.0, 1.2, 0.2],
+            "rho": 0.8
+          },
+          "output": 4.9
         }
-
-
-
-
-    ,{
-        "problem": "spectral_radius_power_iteration",
-        "function_name": "spectral_radius",
-        "signature": "A, num_iter",
-        "description": "Estimate the spectral radius (largest absolute eigenvalue) of a square matrix using the power iteration method.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "A": [[4, 1], [2, 3]],
-                "num_iter": 50
-            },
-            "output": 5.0
-            },
-            {
-            "type": "noisy",
-            "input": {
-                "A": [[4.001, 1], [2, 2.999]],
-                "num_iter": 60
-            },
-            "output": 5.0
-            }
-        ],
-        "tolerance": 1e-2
+      ],
+      "tolerance": 0.5
+    },
+    {
+      "problem": "von_neumann_entropy_near_pure",
+      "function_name": "von_neumann_entropy",
+      "signature": "rho",
+      "description": "Compute the von Neumann entropy of a nearly pure quantum state, testing numerical stability near zero eigenvalues.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "rho": [
+              [0.999, 0.0],
+              [0.0, 0.001]
+            ]
+          },
+          "output": 0.008
+        }
+      ],
+      "tolerance": 0.003
+    },
+    {
+      "problem": "stiff_ode_backward_euler_step",
+      "function_name": "backward_euler_step",
+      "signature": "y, lambda, dt",
+      "description": "Perform one backward Euler step for the stiff ODE dy/dt = -lambda*y.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "y": 1.0,
+            "lambda": 50.0,
+            "dt": 0.1
+          },
+          "output": 0.1667
         },
         {
-        "problem": "condition_number_2norm",
-        "function_name": "condition_number",
-        "signature": "A",
-        "description": "Compute the condition number of a matrix using the 2-norm definition.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "A": [[1, 2], [3, 4]]
-            },
-            "output": 14.93
-            }
-        ],
-        "tolerance": 0.5
+          "type": "hard",
+          "input": {
+            "y": 1.0,
+            "lambda": 200.0,
+            "dt": 0.2
+          },
+          "output": 0.0244
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "evolutionary_stable_strategy_hawk_dove",
+      "function_name": "hawk_dove_ess",
+      "signature": "V, C",
+      "description": "Compute the fraction of hawks at the evolutionarily stable strategy in the Hawk–Dove game.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "V": 2.0,
+            "C": 10.0
+          },
+          "output": 0.2
         },
         {
-        "problem": "least_squares_solution",
-        "function_name": "least_squares",
-        "signature": "A, b",
-        "description": "Solve an overdetermined linear system in the least-squares sense using normal equations.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "A": [[1, 1], [1, 2], [1, 3]],
-                "b": [1, 2, 2]
-            },
-            "output": [0.6667, 0.5]
-            }
-        ],
-        "tolerance": 1e-2
-        },
-        {
-        "problem": "qr_orthogonality_error",
-        "function_name": "qr_orthogonality_error",
-        "signature": "Q",
-        "description": "Compute the Frobenius norm of (QᵀQ − I) to assess loss of orthogonality in a QR factor.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "Q": [[0.7071, 0.7071], [0.7071, -0.7071]]
-            },
-            "output": 0.0
-            },
-            {
-            "type": "noisy",
-            "input": {
-                "Q": [[0.7072, 0.7070], [0.7070, -0.7072]]
-            },
-            "output": 1e-3
-            }
-        ],
-        "tolerance": 2e-3
-        },
-        {
-        "problem": "matrix_exponential_trace",
-        "function_name": "matrix_exponential_trace",
-        "signature": "A",
-        "description": "Approximate the trace of exp(A) for a 2×2 matrix using a truncated Taylor series.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "A": [[0, 1], [-1, 0]]
-            },
-            "output": 2.0
-            }
-        ],
-        "tolerance": 1e-2
-        },
-
-
+          "type": "edge",
+          "input": {
+            "V": 12.0,
+            "C": 10.0
+          },
+          "output": 1.0
+        }
+      ],
+      "tolerance": 0.02
+    },
 
     {
-        "problem": "kepler_orbital_period",
-        "function_name": "orbital_period",
-        "signature": "a, M, G",
-        "description": "Compute the orbital period of a body using Kepler’s third law for a circular orbit.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "a": 1.5e11, "M": 1.989e30, "G": 6.67430e-11 },
-            "output": 3.1557e7
-            },
-            {
-            "type": "noisy",
-            "input": { "a": 1.49e11, "M": 1.989e30, "G": 6.67430e-11 },
-            "output": 3.13e7
-            }
-        ],
-        "tolerance": 5e5
+      "problem": "free_energy_logsumexp_trap",
+      "function_name": "free_energy",
+      "signature": "energies, beta",
+      "description": "Compute the Helmholtz free energy F = -1/beta * log(sum(exp(-beta * Ei))) in a numerically stable way.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "energies": [0.0, 1.0, 2.0],
+            "beta": 1.0
+          },
+          "output": -0.4076
         },
         {
-        "problem": "escape_velocity",
-        "function_name": "escape_velocity",
-        "signature": "M, r, G",
-        "description": "Compute the escape velocity from a spherical body using Newtonian gravity.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "M": 5.972e24, "r": 6.371e6, "G": 6.67430e-11 },
-            "output": 11186.0
-            }
-        ],
-        "tolerance": 50.0
+          "type": "hard",
+          "input": {
+            "energies": [0.0, 1000.0, 2000.0],
+            "beta": 1.0
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "singular_covariance_gaussian_entropy",
+      "function_name": "gaussian_entropy",
+      "signature": "cov",
+      "description": "Compute the differential entropy of a multivariate Gaussian. Return null if the covariance is singular.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "cov": [
+              [1.0, 0.0],
+              [0.0, 1.0]
+            ]
+          },
+          "output": 2.838
         },
         {
-        "problem": "schwarzschild_radius",
-        "function_name": "schwarzschild_radius",
-        "signature": "M, G, c",
-        "description": "Compute the Schwarzschild radius of a non-rotating black hole.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "M": 1.989e30, "G": 6.67430e-11, "c": 2.998e8 },
-            "output": 2953.0
-            }
-        ],
-        "tolerance": 5.0
+          "type": "hard",
+          "input": {
+            "cov": [
+              [1.0, 1.0],
+              [1.0, 1.0]
+            ]
+          },
+          "output": null
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "liouville_theorem_phase_space",
+      "function_name": "phase_space_volume_change",
+      "signature": "divergence",
+      "description": "Determine whether phase-space volume changes under Hamiltonian flow given the divergence of the vector field.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "divergence": 0.0
+          },
+          "output": 0.0
         },
         {
-        "problem": "stellar_luminosity",
-        "function_name": "stellar_luminosity",
-        "signature": "R, T, sigma",
-        "description": "Compute the luminosity of a star using the Stefan–Boltzmann law.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "R": 6.96e8, "T": 5778, "sigma": 5.670374419e-8 },
-            "output": 3.83e26
-            },
-            {
-            "type": "noisy",
-            "input": { "R": 6.95e8, "T": 5800, "sigma": 5.670374419e-8 },
-            "output": 3.85e26
-            }
-        ],
-        "tolerance": 5e24
+          "type": "hard",
+          "input": {
+            "divergence": -3.0
+          },
+          "output": -3.0
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "quantum_no_cloning_violation",
+      "function_name": "is_cloning_possible",
+      "signature": "states",
+      "description": "Determine whether a set of quantum states can be perfectly cloned.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "states": [
+              [1.0, 0.0],
+              [0.0, 1.0]
+            ]
+          },
+          "output": true
         },
         {
-        "problem": "hubble_recession_velocity",
-        "function_name": "recession_velocity",
-        "signature": "distance, H0",
-        "description": "Compute the recession velocity of a galaxy using Hubble’s law.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "distance": 1.0e22, "H0": 2.27e-18 },
-            "output": 2.27e4
-            }
-        ],
-        "tolerance": 500.0
+          "type": "hard",
+          "input": {
+            "states": [
+              [1.0, 0.0],
+              [0.7071, 0.7071]
+            ]
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "nonconvex_optimization_global_minimum",
+      "function_name": "global_minimum_value",
+      "signature": "function_id",
+      "description": "Return the global minimum value of a known nonconvex function.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "function_id": "double_well"
+          },
+          "output": -1.0
         },
+        {
+          "type": "hard",
+          "input": {
+            "function_id": "rosenbrock"
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.01
+    },
 
     {
-        "problem": "arrhenius_rate_constant",
-        "function_name": "arrhenius_rate",
-        "signature": "A, Ea, T, R",
-        "description": "Compute the Arrhenius reaction rate constant k(T)=A*exp(-Ea/(R*T)).",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "A": 1e13, "Ea": 80000, "T": 298, "R": 8.314 },
-            "output": 2.646e-02
-            },
-            {
-            "type": "noisy",
-            "input": { "A": 1.01e13, "Ea": 79900, "T": 300, "R": 8.314 },
-            "output": 4.44e-02
-            }
-        ],
-        "tolerance": 1e-3
+      "problem": "quantum_relative_entropy",
+      "function_name": "quantum_relative_entropy",
+      "signature": "rho, sigma",
+      "description": "Compute the quantum relative entropy S(rho||sigma) = Tr(rho (log rho − log sigma)).",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "rho": [
+              [0.5, 0.0],
+              [0.0, 0.5]
+            ],
+            "sigma": [
+              [0.75, 0.0],
+              [0.0, 0.25]
+            ]
+          },
+          "output": 0.1438
         },
         {
-        "problem": "equilibrium_extent",
-        "function_name": "equilibrium_extent",
-        "signature": "nA0, nB0, K",
-        "description": "Compute equilibrium extent xi for A ⇌ B given initial moles and equilibrium constant.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "nA0": 1.0, "nB0": 0.0, "K": 10.0 },
-            "output": 0.9091
-            }
-        ],
-        "tolerance": 1e-3
+          "type": "hard",
+          "input": {
+            "rho": [
+              [1.0, 0.0],
+              [0.0, 0.0]
+            ],
+            "sigma": [
+              [0.0, 0.0],
+              [0.0, 1.0]
+            ]
+          },
+          "output": null
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "lyapunov_exponent_logistic_map",
+      "function_name": "lyapunov_exponent",
+      "signature": "r, x0, n",
+      "description": "Estimate the Lyapunov exponent of the logistic map x_{n+1} = r x_n (1 − x_n).",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "r": 4.0,
+            "x0": 0.2,
+            "n": 5000
+          },
+          "output": 0.693
         },
         {
-        "problem": "beer_lambert_concentration",
-        "function_name": "concentration",
-        "signature": "absorbances, epsilon, path_length",
-        "description": "Compute solute concentration using Beer–Lambert law from noisy absorbance measurements.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "absorbances": [0.51, 0.49, 0.50], "epsilon": 1000, "path_length": 1.0 },
-            "output": 0.0005
-            }
-        ],
-        "tolerance": 1e-5
+          "type": "edge",
+          "input": {
+            "r": 2.9,
+            "x0": 0.2,
+            "n": 5000
+          },
+          "output": -0.1
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "renormalization_group_fixed_point",
+      "function_name": "rg_fixed_point",
+      "signature": "g, a, n",
+      "description": "Iterate a simplified renormalization-group flow g_{n+1} = g_n − a g_n^2 and determine the stable fixed point.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "g": 1.0,
+            "a": 0.5,
+            "n": 100
+          },
+          "output": 0.0
         },
         {
-        "problem": "nernst_potential",
-        "function_name": "nernst_potential",
-        "signature": "E0, Q, T, n, R, F",
-        "description": "Compute electrode potential using the Nernst equation.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "E0": 1.10, "Q": 10.0, "T": 298, "n": 2, "R": 8.314, "F": 96485 },
-            "output": 1.069
-            }
-        ],
-        "tolerance": 1e-3
+          "type": "hard",
+          "input": {
+            "g": -1.0,
+            "a": 0.5,
+            "n": 100
+          },
+          "output": -2.0
+        }
+      ],
+      "tolerance": 0.1
+    },
+    {
+      "problem": "kalman_filter_steady_state_gain",
+      "function_name": "kalman_gain",
+      "signature": "A, C, Q, R",
+      "description": "Compute the steady-state Kalman gain for a 1D linear system.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": 1.0,
+            "C": 1.0,
+            "Q": 0.01,
+            "R": 0.04
+          },
+          "output": 0.333
         },
         {
-        "problem": "boltzmann_population_ratio",
-        "function_name": "boltzmann_ratio",
-        "signature": "E1, E2, T, kB",
-        "description": "Compute population ratio between two energy levels using Boltzmann statistics.",
-        "cases": [
-            {
-            "type": "core",
-            "input": { "E1": 0.0, "E2": 1e-20, "T": 300, "kB": 1.38e-23 },
-            "output": 0.786
-            }
-        ],
-        "tolerance": 1e-3
-    }
+          "type": "hard",
+          "input": {
+            "A": 1.0,
+            "C": 1.0,
+            "Q": 1e-6,
+            "R": 1.0
+          },
+          "output": 0.001
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "stochastic_differential_equation_ito_step",
+      "function_name": "ito_step",
+      "signature": "x, mu, sigma, dt, dW",
+      "description": "Perform one Euler–Maruyama step for the SDE dX = mu X dt + sigma X dW.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "x": 1.0,
+            "mu": 0.1,
+            "sigma": 0.2,
+            "dt": 0.01,
+            "dW": 0.05
+          },
+          "output": 1.012
+        },
+        {
+          "type": "hard",
+          "input": {
+            "x": 1.0,
+            "mu": -1.0,
+            "sigma": 2.0,
+            "dt": 0.01,
+            "dW": -0.2
+          },
+          "output": 0.596
+        }
+      ],
+      "tolerance": 0.02
+    },
 
+    {
+      "problem": "free_energy_from_partition_function",
+      "function_name": "helmholtz_free_energy",
+      "signature": "Z, T, kB",
+      "description": "Compute the Helmholtz free energy F = -kB*T*ln(Z) from a partition function value.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "Z": 300.0,
+            "T": 300.0,
+            "kB": 1.0
+          },
+          "output": -1711.0
+        },
+        {
+          "type": "edge",
+          "input": {
+            "Z": 1.0,
+            "T": 300.0,
+            "kB": 1.0
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 5.0
+    },
+    {
+      "problem": "log_sum_exp_stability",
+      "function_name": "log_sum_exp",
+      "signature": "values",
+      "description": "Compute log(sum(exp(values))) in a numerically stable way.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "values": [1000.0, 1000.0]
+          },
+          "output": 1000.693
+        },
+        {
+          "type": "hard",
+          "input": {
+            "values": [-1000.0, -1001.0]
+          },
+          "output": -999.686
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "quantum_channel_cptp_check",
+      "function_name": "is_cptp",
+      "signature": "kraus_ops",
+      "description": "Determine whether a set of Kraus operators defines a completely positive trace-preserving (CPTP) quantum channel.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "kraus_ops": [
+              [
+                [1.0, 0.0],
+                [0.0, 0.0]
+              ],
+              [
+                [0.0, 0.0],
+                [0.0, 1.0]
+              ]
+            ]
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "kraus_ops": [
+              [
+                [1.2, 0.0],
+                [0.0, 0.0]
+              ]
+            ]
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "reaction_diffusion_turing_condition",
+      "function_name": "turing_instability",
+      "signature": "Du, Dv, fu, fv, gu, gv",
+      "description": "Determine whether a reaction–diffusion system satisfies the Turing instability conditions.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "Du": 1.0,
+            "Dv": 10.0,
+            "fu": 1.0,
+            "fv": -1.0,
+            "gu": 1.0,
+            "gv": -2.0
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "Du": 1.0,
+            "Dv": 1.2,
+            "fu": 1.0,
+            "fv": -1.0,
+            "gu": 1.0,
+            "gv": -2.0
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "ill_conditioned_linear_solve",
+      "function_name": "solve_linear_system",
+      "signature": "A, b",
+      "description": "Solve a nearly singular linear system, testing numerical conditioning awareness.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [1.0, 0.999],
+              [0.999, 0.998]
+            ],
+            "b": [1.999, 1.997]
+          },
+          "output": [1.0, 1.0]
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [1.0, 0.9999],
+              [0.9999, 0.9998]
+            ],
+            "b": [1.9998, 1.9996]
+          },
+          "output": [1.0, 1.0]
+        }
+      ],
+      "tolerance": 0.05
+    },
 
+    {
+      "problem": "quantum_heat_capacity_fermion",
+      "function_name": "fermion_heat_capacity",
+      "signature": "mu, T, kB",
+      "description": "Compute the low-temperature heat capacity of a degenerate Fermi gas in the Sommerfeld approximation.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "mu": 10.0,
+            "T": 1.0,
+            "kB": 1.0
+          },
+          "output": 0.329
+        },
+        {
+          "type": "hard",
+          "input": {
+            "mu": 10.0,
+            "T": 0.1,
+            "kB": 1.0
+          },
+          "output": 0.0329
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "pseudospectrum_sensitivity",
+      "function_name": "eigenvalue_sensitivity",
+      "signature": "A, epsilon",
+      "description": "Estimate the maximum eigenvalue shift under a matrix perturbation of norm epsilon.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [1.0, 1.0],
+              [0.0, 1.0]
+            ],
+            "epsilon": 0.01
+          },
+          "output": 0.1
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [1.0, 10.0],
+              [0.0, 1.0]
+            ],
+            "epsilon": 0.01
+          },
+          "output": 1.0
+        }
+      ],
+      "tolerance": 0.1
+    },
+    {
+      "problem": "wkb_tunneling_probability",
+      "function_name": "wkb_tunneling",
+      "signature": "V0, E, a, hbar, m",
+      "description": "Compute the tunneling probability through a rectangular barrier using the WKB approximation.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "V0": 10.0,
+            "E": 2.0,
+            "a": 1.0,
+            "hbar": 1.0,
+            "m": 1.0
+          },
+          "output": 0.0019
+        },
+        {
+          "type": "hard",
+          "input": {
+            "V0": 10.0,
+            "E": 9.5,
+            "a": 1.0,
+            "hbar": 1.0,
+            "m": 1.0
+          },
+          "output": 0.37
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "mean_first_passage_time_1d",
+      "function_name": "mfpt_1d",
+      "signature": "L, D",
+      "description": "Compute the mean first-passage time for a 1D Brownian particle to reach distance L.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "L": 1.0,
+            "D": 0.5
+          },
+          "output": 1.0
+        },
+        {
+          "type": "edge",
+          "input": {
+            "L": 2.0,
+            "D": 0.5
+          },
+          "output": 4.0
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "variational_ground_state_energy",
+      "function_name": "variational_energy",
+      "signature": "alpha",
+      "description": "Estimate the ground-state energy of a 1D quantum harmonic oscillator using a Gaussian variational ansatz.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "alpha": 1.0
+          },
+          "output": 0.5
+        },
+        {
+          "type": "hard",
+          "input": {
+            "alpha": 0.5
+          },
+          "output": 0.625
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "beta_binomial_posterior_mean",
+      "function_name": "posterior_mean",
+      "signature": "alpha, beta, k, n",
+      "description": "Compute the posterior mean of a Bernoulli parameter under a Beta–Binomial model.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "k": 8,
+            "n": 10
+          },
+          "output": 0.7143
+        },
+        {
+          "type": "edge",
+          "input": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "k": 0,
+            "n": 10
+          },
+          "output": 0.0833
+        }
+      ],
+      "tolerance": 0.005
+    },
+    {
+      "problem": "algebraic_connectivity_path_graph",
+      "function_name": "algebraic_connectivity",
+      "signature": "n",
+      "description": "Compute the second-smallest eigenvalue of the Laplacian of a path graph with n nodes.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "n": 3
+          },
+          "output": 1.0
+        },
+        {
+          "type": "hard",
+          "input": {
+            "n": 10
+          },
+          "output": 0.098
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "explicit_heat_equation_cfl_condition",
+      "function_name": "is_stable",
+      "signature": "alpha, dx, dt",
+      "description": "Determine whether an explicit finite-difference heat equation step satisfies the CFL stability condition.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "alpha": 1.0,
+            "dx": 1.0,
+            "dt": 0.4
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "alpha": 1.0,
+            "dx": 1.0,
+            "dt": 0.6
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "kl_divergence_discrete",
+      "function_name": "kl_divergence",
+      "signature": "p, q",
+      "description": "Compute the Kullback–Leibler divergence KL(p || q) between two discrete probability distributions.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "p": [0.5, 0.5],
+            "q": [0.9, 0.1]
+          },
+          "output": 0.511
+        },
+        {
+          "type": "hard",
+          "input": {
+            "p": [0.9, 0.1],
+            "q": [0.5, 0.5]
+          },
+          "output": 0.368
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "pagerank_two_node_graph",
+      "function_name": "pagerank",
+      "signature": "damping",
+      "description": "Compute the PageRank stationary distribution for a symmetric two-node graph.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "damping": 0.85
+          },
+          "output": [0.5, 0.5]
+        },
+        {
+          "type": "edge",
+          "input": {
+            "damping": 1.0
+          },
+          "output": [0.5, 0.5]
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "lyapunov_stability_linear_system",
+      "function_name": "is_lyapunov_stable",
+      "signature": "A",
+      "description": "Determine Lyapunov stability of a continuous-time linear system dx/dt = A x by eigenvalue analysis.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [-1.0, 0.0],
+              [0.0, -2.0]
+            ]
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [0.0, 1.0],
+              [-1.0, 0.0]
+            ]
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "fisher_information_gaussian_mean",
+      "function_name": "fisher_information",
+      "signature": "sigma",
+      "description": "Compute the Fisher information for the mean parameter of a Gaussian distribution with known variance.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "sigma": 2.0
+          },
+          "output": 0.25
+        },
+        {
+          "type": "edge",
+          "input": {
+            "sigma": 0.5
+          },
+          "output": 4.0
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "rk4_harmonic_oscillator_energy_error",
+      "function_name": "rk4_energy_error",
+      "signature": "dt",
+      "description": "Estimate the relative energy error after one RK4 step for a unit-mass, unit-frequency harmonic oscillator.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "dt": 0.1
+          },
+          "output": 1e-6
+        },
+        {
+          "type": "hard",
+          "input": {
+            "dt": 0.5
+          },
+          "output": 0.01
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "logistic_map_feigenbaum_ratio",
+      "function_name": "feigenbaum_ratio",
+      "signature": "delta1, delta2",
+      "description": "Estimate the Feigenbaum constant from successive period-doubling parameter intervals.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "delta1": 0.087,
+            "delta2": 0.021
+          },
+          "output": 4.14
+        }
+      ],
+      "tolerance": 0.2
+    },
+    {
+      "problem": "quantum_projective_measurement",
+      "function_name": "measurement_outcomes",
+      "signature": "state, basis",
+      "description": "Compute outcome probabilities of a projective measurement on a qubit state.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "state": [0.7071, 0.7071],
+            "basis": [
+              [1.0, 0.0],
+              [0.0, 1.0]
+            ]
+          },
+          "output": [0.5, 0.5]
+        },
+        {
+          "type": "hard",
+          "input": {
+            "state": [1.0, 0.0],
+            "basis": [
+              [0.7071, 0.7071],
+              [0.7071, -0.7071]
+            ]
+          },
+          "output": [0.5, 0.5]
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "gaussian_process_log_marginal_likelihood",
+      "function_name": "gp_log_marginal_likelihood",
+      "signature": "y, K, sigma2",
+      "description": "Compute the Gaussian process log marginal likelihood for observations y with covariance K + sigma^2 I.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "y": [1.0, -1.0],
+            "K": [
+              [1.0, 0.0],
+              [0.0, 1.0]
+            ],
+            "sigma2": 0.0
+          },
+          "output": -2.8379
+        },
+        {
+          "type": "hard",
+          "input": {
+            "y": [1.0, -1.0],
+            "K": [
+              [1.0, 0.999],
+              [0.999, 1.0]
+            ],
+            "sigma2": 1e-4
+          },
+          "output": -1.43
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "spectral_poisson_solution_1d",
+      "function_name": "poisson_spectral_solution",
+      "signature": "f_hat, k",
+      "description": "Solve the 1D Poisson equation -u'' = f using spectral coefficients, excluding the zero mode.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "f_hat": [0.0, 1.0, 0.0],
+            "k": [0, 1, 2]
+          },
+          "output": [0.0, 1.0, 0.0]
+        },
+        {
+          "type": "hard",
+          "input": {
+            "f_hat": [0.0, 2.0, 0.0],
+            "k": [0, 1, 2]
+          },
+          "output": [0.0, 2.0, 0.0]
+        }
+      ],
+      "tolerance": 1e-6
+    },
+    {
+      "problem": "bayesian_evidence_model_comparison",
+      "function_name": "bayes_factor",
+      "signature": "logZ1, logZ2",
+      "description": "Compute the Bayes factor K = exp(logZ1 - logZ2) for model comparison.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "logZ1": -100.0,
+            "logZ2": -102.0
+          },
+          "output": 7.39
+        },
+        {
+          "type": "hard",
+          "input": {
+            "logZ1": -1000.0,
+            "logZ2": -1001.0
+          },
+          "output": 2.718
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "kalman_filter_reachability",
+      "function_name": "is_reachable",
+      "signature": "A, B",
+      "description": "Determine whether a discrete-time linear system x_{k+1} = A x_k + B u_k is reachable.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [1.0, 1.0],
+              [0.0, 1.0]
+            ],
+            "B": [[0.0], [1.0]]
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [1.0, 0.0],
+              [0.0, 1.0]
+            ],
+            "B": [[1.0], [0.0]]
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "lindblad_dephasing_channel",
+      "function_name": "dephasing_channel",
+      "signature": "rho, gamma",
+      "description": "Apply a single-step Lindblad dephasing channel to a qubit density matrix.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "rho": [
+              [0.5, 0.5],
+              [0.5, 0.5]
+            ],
+            "gamma": 0.5
+          },
+          "output": [
+            [0.5, 0.303],
+            [0.303, 0.5]
+          ]
+        },
+        {
+          "type": "hard",
+          "input": {
+            "rho": [
+              [0.5, 0.5],
+              [0.5, 0.5]
+            ],
+            "gamma": 5.0
+          },
+          "output": [
+            [0.5, 0.003],
+            [0.003, 0.5]
+          ]
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "quantum_work_two_level_quench",
+      "function_name": "average_work",
+      "signature": "E0, E1, p_excited",
+      "description": "Compute the average work performed in a sudden quench of a two-level quantum system.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "E0": 1.0,
+            "E1": 3.0,
+            "p_excited": 0.25
+          },
+          "output": 0.5
+        },
+        {
+          "type": "hard",
+          "input": {
+            "E0": 2.0,
+            "E1": 5.0,
+            "p_excited": 0.8
+          },
+          "output": 2.4
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "spectral_gap_cycle_graph",
+      "function_name": "spectral_gap",
+      "signature": "n",
+      "description": "Compute the spectral gap of the Laplacian of a cycle graph with n nodes.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "n": 6
+          },
+          "output": 1.0
+        },
+        {
+          "type": "hard",
+          "input": {
+            "n": 20
+          },
+          "output": 0.098
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "lagrange_multiplier_quadratic_constraint",
+      "function_name": "quadratic_constraint_minimum",
+      "signature": "a, b, c",
+      "description": "Find the minimum of f(x,y)=x^2+y^2 subject to the linear constraint ax+by=c.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "a": 1.0,
+            "b": 1.0,
+            "c": 2.0
+          },
+          "output": 2.0
+        },
+        {
+          "type": "edge",
+          "input": {
+            "a": 3.0,
+            "b": 4.0,
+            "c": 10.0
+          },
+          "output": 4.0
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "gauss_legendre_quadrature_error",
+      "function_name": "quadrature_error",
+      "signature": "n",
+      "description": "Estimate the absolute error of n-point Gauss–Legendre quadrature for integrating sin(x) on [0, π].",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "n": 2
+          },
+          "output": 0.02
+        },
+        {
+          "type": "hard",
+          "input": {
+            "n": 4
+          },
+          "output": 0.0001
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "ornstein_uhlenbeck_stationary_variance",
+      "function_name": "ou_stationary_variance",
+      "signature": "theta, sigma",
+      "description": "Compute the stationary variance of an Ornstein–Uhlenbeck process.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "theta": 1.0,
+            "sigma": 1.0
+          },
+          "output": 0.5
+        },
+        {
+          "type": "hard",
+          "input": {
+            "theta": 0.2,
+            "sigma": 2.0
+          },
+          "output": 10.0
+        }
+      ],
+      "tolerance": 0.1
+    },
 
+    {
+      "problem": "free_energy_difference_jarzynski",
+      "function_name": "jarzynski_free_energy",
+      "signature": "work_samples, kB, T",
+      "description": "Estimate the free energy difference using the Jarzynski equality from nonequilibrium work samples.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "work_samples": [1.0, 1.2, 0.8, 1.1],
+            "kB": 1.0,
+            "T": 1.0
+          },
+          "output": 0.95
+        },
+        {
+          "type": "hard",
+          "input": {
+            "work_samples": [5.0, 6.0, 7.0, 8.0],
+            "kB": 1.0,
+            "T": 1.0
+          },
+          "output": 4.96
+        }
+      ],
+      "tolerance": 0.1
+    },
+    {
+      "problem": "identifiability_linear_regression",
+      "function_name": "is_identifiable",
+      "signature": "X",
+      "description": "Determine whether parameters of a linear regression model are identifiable from the design matrix.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "X": [
+              [1.0, 0.0],
+              [0.0, 1.0]
+            ]
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "X": [
+              [1.0, 2.0],
+              [2.0, 4.0]
+            ]
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "nonhermitian_matrix_transient_growth",
+      "function_name": "has_transient_growth",
+      "signature": "A",
+      "description": "Determine whether a non-normal matrix can exhibit transient growth despite all eigenvalues being stable.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [-1.0, 10.0],
+              [0.0, -1.0]
+            ]
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [-1.0, 0.0],
+              [0.0, -2.0]
+            ]
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "maximum_entropy_distribution",
+      "function_name": "max_entropy_binary",
+      "signature": "mean",
+      "description": "Compute the maximum-entropy Bernoulli distribution given a fixed mean.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "mean": 0.3
+          },
+          "output": [0.7, 0.3]
+        },
+        {
+          "type": "edge",
+          "input": {
+            "mean": 0.5
+          },
+          "output": [0.5, 0.5]
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "spectral_radius_gershgorin_bound",
+      "function_name": "gershgorin_radius_bound",
+      "signature": "A",
+      "description": "Compute an upper bound on the spectral radius using Gershgorin’s circle theorem.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [4.0, -1.0],
+              [2.0, 3.0]
+            ]
+          },
+          "output": 5.0
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [1.0, 100.0],
+              [0.0, 1.0]
+            ]
+          },
+          "output": 101.0
+        }
+      ],
+      "tolerance": 1.0
+    },
+    {
+      "problem": "log_determinant_stability",
+      "function_name": "log_determinant",
+      "signature": "A",
+      "description": "Compute the natural logarithm of the determinant of a symmetric positive-definite matrix in a numerically stable way.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [2.0, 0.0],
+              [0.0, 3.0]
+            ]
+          },
+          "output": 1.7918
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [1e-6, 0.0],
+              [0.0, 1e6]
+            ]
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "entropy_rate_markov_chain",
+      "function_name": "entropy_rate",
+      "signature": "P",
+      "description": "Compute the entropy rate of a stationary two-state Markov chain with transition matrix P.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "P": [
+              [0.9, 0.1],
+              [0.2, 0.8]
+            ]
+          },
+          "output": 0.5
+        },
+        {
+          "type": "hard",
+          "input": {
+            "P": [
+              [0.99, 0.01],
+              [0.01, 0.99]
+            ]
+          },
+          "output": 0.081
+        }
+      ],
+      "tolerance": 0.03
+    },
+    {
+      "problem": "saddle_point_laplace_approximation",
+      "function_name": "laplace_approximation",
+      "signature": "fpp, n",
+      "description": "Estimate an integral using Laplace’s method given the second derivative at the saddle point.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "fpp": 2.0,
+            "n": 100
+          },
+          "output": 0.177
+        },
+        {
+          "type": "hard",
+          "input": {
+            "fpp": 10.0,
+            "n": 100
+          },
+          "output": 0.079
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "observability_linear_system",
+      "function_name": "is_observable",
+      "signature": "A, C",
+      "description": "Determine whether a discrete-time linear system is observable from its output matrix.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [1.0, 1.0],
+              [0.0, 1.0]
+            ],
+            "C": [[1.0, 0.0]]
+          },
+          "output": true
+        },
+        {
+          "type": "hard",
+          "input": {
+            "A": [
+              [1.0, 0.0],
+              [0.0, 1.0]
+            ],
+            "C": [[1.0, 0.0]]
+          },
+          "output": false
+        }
+      ],
+      "tolerance": 0.0
+    },
+    {
+      "problem": "quantum_speed_limit_mandelstam_tamm",
+      "function_name": "quantum_speed_limit",
+      "signature": "delta_E, hbar",
+      "description": "Compute the Mandelstam–Tamm quantum speed limit time for orthogonal state evolution.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "delta_E": 1.0,
+            "hbar": 1.0
+          },
+          "output": 1.571
+        },
+        {
+          "type": "hard",
+          "input": {
+            "delta_E": 0.5,
+            "hbar": 1.0
+          },
+          "output": 3.142
+        }
+      ],
+      "tolerance": 0.02
+    },
 
+    {
+      "problem": "black_scholes_call_price",
+      "function_name": "bs_call_price",
+      "signature": "S, K, r, T, sigma",
+      "description": "Compute the Black–Scholes price of a European call option.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "S": 100.0,
+            "K": 100.0,
+            "r": 0.05,
+            "T": 1.0,
+            "sigma": 0.2
+          },
+          "output": 10.45
+        },
+        {
+          "type": "noisy",
+          "input": {
+            "S": 102.0,
+            "K": 100.0,
+            "r": 0.048,
+            "T": 0.95,
+            "sigma": 0.21
+          },
+          "output": 11.3
+        },
+        {
+          "type": "edge",
+          "input": {
+            "S": 100.0,
+            "K": 100.0,
+            "r": 0.05,
+            "T": 1.0,
+            "sigma": 0.01
+          },
+          "output": 4.9
+        }
+      ],
+      "tolerance": 0.15
+    },
+    {
+      "problem": "implied_volatility_newton",
+      "function_name": "implied_volatility",
+      "signature": "price, S, K, r, T",
+      "description": "Estimate implied volatility of a European call option using Newton–Raphson iteration.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "price": 10.45,
+            "S": 100.0,
+            "K": 100.0,
+            "r": 0.05,
+            "T": 1.0
+          },
+          "output": 0.2
+        },
+        {
+          "type": "edge",
+          "input": {
+            "price": 25.0,
+            "S": 120.0,
+            "K": 90.0,
+            "r": 0.03,
+            "T": 1.0
+          },
+          "output": 0.25
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "monte_carlo_option_pricing",
+      "function_name": "mc_call_price",
+      "signature": "S, K, r, T, sigma, n_paths",
+      "description": "Estimate the European call option price using Monte Carlo simulation under geometric Brownian motion.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "S": 100.0,
+            "K": 100.0,
+            "r": 0.05,
+            "T": 1.0,
+            "sigma": 0.2,
+            "n_paths": 50000
+          },
+          "output": 10.4
+        },
+        {
+          "type": "noisy",
+          "input": {
+            "S": 100.0,
+            "K": 100.0,
+            "r": 0.05,
+            "T": 1.0,
+            "sigma": 0.2,
+            "n_paths": 5000
+          },
+          "output": 10.3
+        }
+      ],
+      "tolerance": 0.5
+    },
+    {
+      "problem": "portfolio_variance",
+      "function_name": "portfolio_variance",
+      "signature": "weights, cov",
+      "description": "Compute portfolio variance given asset weights and covariance matrix.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "weights": [0.4, 0.6],
+            "cov": [
+              [0.04, 0.006],
+              [0.006, 0.09]
+            ]
+          },
+          "output": 0.0417
+        },
+        {
+          "type": "edge",
+          "input": {
+            "weights": [1.0],
+            "cov": [[0.04]]
+          },
+          "output": 0.04
+        }
+      ],
+      "tolerance": 0.002
+    },
+    {
+      "problem": "value_at_risk_gaussian",
+      "function_name": "value_at_risk",
+      "signature": "mu, sigma, alpha",
+      "description": "Compute Value-at-Risk (VaR) under a Gaussian return assumption.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "mu": 0.001, "sigma": 0.02, "alpha": 0.05 },
+          "output": -0.032
+        },
+        {
+          "type": "edge",
+          "input": { "mu": 0.001, "sigma": 0.0, "alpha": 0.05 },
+          "output": 0.001
+        }
+      ],
+      "tolerance": 0.002
+    },
+    {
+      "problem": "michaelis_menten_rate",
+      "function_name": "reaction_rate",
+      "signature": "Vmax, Km, S",
+      "description": "Compute the reaction velocity using the Michaelis–Menten equation for enzyme kinetics.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "Vmax": 1.5, "Km": 0.3, "S": 0.5 },
+          "output": 0.9375
+        },
+        {
+          "type": "noisy",
+          "input": { "Vmax": 1.52, "Km": 0.29, "S": 0.48 },
+          "output": 0.96
+        },
+        {
+          "type": "edge",
+          "input": { "Vmax": 1.5, "Km": 0.3, "S": 0.0 },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "competitive_inhibition_rate",
+      "function_name": "competitive_inhibition_rate",
+      "signature": "Vmax, Km, S, I, Ki",
+      "description": "Compute reaction velocity for a competitively inhibited enzyme system.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "Vmax": 2.0,
+            "Km": 0.5,
+            "S": 0.6,
+            "I": 0.4,
+            "Ki": 0.2
+          },
+          "output": 0.571
+        },
+        {
+          "type": "edge",
+          "input": {
+            "Vmax": 2.0,
+            "Km": 0.5,
+            "S": 0.6,
+            "I": 0.0,
+            "Ki": 0.2
+          },
+          "output": 1.091
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "gibbs_free_energy",
+      "function_name": "gibbs_energy",
+      "signature": "delta_H, delta_S, T",
+      "description": "Compute the Gibbs free energy change ΔG = ΔH − TΔS for a biochemical reaction.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "delta_H": -40.0,
+            "delta_S": -0.1,
+            "T": 298.15
+          },
+          "output": -10.185
+        },
+        {
+          "type": "edge",
+          "input": {
+            "delta_H": -40.0,
+            "delta_S": -0.1,
+            "T": 0.0
+          },
+          "output": -40.0
+        }
+      ],
+      "tolerance": 0.1
+    },
+    {
+      "problem": "ligand_binding_fraction",
+      "function_name": "binding_fraction",
+      "signature": "L, Kd",
+      "description": "Compute the fraction of occupied binding sites given ligand concentration and dissociation constant.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "L": 2.0, "Kd": 0.5 },
+          "output": 0.8
+        },
+        {
+          "type": "noisy",
+          "input": { "L": 1.8, "Kd": 0.55 },
+          "output": 0.77
+        },
+        {
+          "type": "edge",
+          "input": { "L": 100.0, "Kd": 0.5 },
+          "output": 0.995
+        }
+      ],
+      "tolerance": 0.03
+    },
+    {
+      "problem": "hill_equation_cooperativity",
+      "function_name": "hill_fraction",
+      "signature": "L, Kd, n",
+      "description": "Compute binding fraction using the Hill equation to model cooperative binding.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "L": 1.5,
+            "Kd": 1.0,
+            "n": 2
+          },
+          "output": 0.692
+        },
+        {
+          "type": "edge",
+          "input": {
+            "L": 1.5,
+            "Kd": 1.0,
+            "n": 1
+          },
+          "output": 0.6
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "spectral_radius_power_iteration",
+      "function_name": "spectral_radius",
+      "signature": "A, num_iter",
+      "description": "Estimate the spectral radius (largest absolute eigenvalue) of a square matrix using the power iteration method.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [4, 1],
+              [2, 3]
+            ],
+            "num_iter": 50
+          },
+          "output": 5.0
+        },
+        {
+          "type": "noisy",
+          "input": {
+            "A": [
+              [4.001, 1],
+              [2, 2.999]
+            ],
+            "num_iter": 60
+          },
+          "output": 5.0
+        },
+        {
+          "type": "edge",
+          "input": {
+            "A": [
+              [-3, 0],
+              [0, 1]
+            ],
+            "num_iter": 30
+          },
+          "output": 3.0
+        }
+      ],
+      "tolerance": 1e-2
+    },
+    {
+      "problem": "condition_number_2norm",
+      "function_name": "condition_number",
+      "signature": "A",
+      "description": "Compute the condition number of a matrix using the 2-norm definition.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [1, 2],
+              [3, 4]
+            ]
+          },
+          "output": 14.93
+        },
+        {
+          "type": "edge",
+          "input": {
+            "A": [
+              [1, 0],
+              [0, 1]
+            ]
+          },
+          "output": 1.0
+        }
+      ],
+      "tolerance": 0.5
+    },
+    {
+      "problem": "least_squares_solution",
+      "function_name": "least_squares",
+      "signature": "A, b",
+      "description": "Solve an overdetermined linear system in the least-squares sense using normal equations.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [1, 1],
+              [1, 2],
+              [1, 3]
+            ],
+            "b": [1, 2, 2]
+          },
+          "output": [0.5, 0.5]
+        },
+        {
+          "type": "edge",
+          "input": {
+            "A": [
+              [1, 0],
+              [0, 1],
+              [1, 1]
+            ],
+            "b": [1, 2, 3]
+          },
+          "output": [1.0, 2.0]
+        }
+      ],
+      "tolerance": 1e-2
+    },
+    {
+      "problem": "qr_orthogonality_error",
+      "function_name": "qr_orthogonality_error",
+      "signature": "Q",
+      "description": "Compute the Frobenius norm of (QᵀQ − I) to assess loss of orthogonality in a QR factor.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "Q": [
+              [0.7071, 0.7071],
+              [0.7071, -0.7071]
+            ]
+          },
+          "output": 0.0
+        },
+        {
+          "type": "noisy",
+          "input": {
+            "Q": [
+              [0.7072, 0.707],
+              [0.707, -0.7072]
+            ]
+          },
+          "output": 1e-3
+        },
+        {
+          "type": "edge",
+          "input": {
+            "Q": [
+              [1, 0],
+              [0, 1]
+            ]
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 2e-3
+    },
+    {
+      "problem": "matrix_exponential_trace",
+      "function_name": "matrix_exponential_trace",
+      "signature": "A",
+      "description": "Approximate the trace of exp(A) for a 2×2 matrix using a truncated Taylor series.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "A": [
+              [0, 1],
+              [-1, 0]
+            ]
+          },
+          "output": 1.0806
+        },
+        {
+          "type": "edge",
+          "input": {
+            "A": [
+              [0, 0],
+              [0, 0]
+            ]
+          },
+          "output": 2.0
+        }
+      ],
+      "tolerance": 1e-2
+    },
+    {
+      "problem": "kepler_orbital_period",
+      "function_name": "orbital_period",
+      "signature": "a, M, G",
+      "description": "Compute the orbital period of a body using Kepler’s third law for a circular orbit.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "a": 1.5e11, "M": 1.989e30, "G": 6.6743e-11 },
+          "output": 3.1557e7
+        },
+        {
+          "type": "noisy",
+          "input": { "a": 1.49e11, "M": 1.989e30, "G": 6.6743e-11 },
+          "output": 3.13e7
+        },
+        {
+          "type": "edge",
+          "input": { "a": 1.0e7, "M": 1.989e30, "G": 6.6743e-11 },
+          "output": 544.0
+        }
+      ],
+      "tolerance": 5e5
+    },
+    {
+      "problem": "escape_velocity",
+      "function_name": "escape_velocity",
+      "signature": "M, r, G",
+      "description": "Compute the escape velocity from a spherical body using Newtonian gravity.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "M": 5.972e24, "r": 6.371e6, "G": 6.6743e-11 },
+          "output": 11186.0
+        },
+        {
+          "type": "edge",
+          "input": { "M": 1.0e12, "r": 500.0, "G": 6.6743e-11 },
+          "output": 16.3
+        }
+      ],
+      "tolerance": 50.0
+    },
+    {
+      "problem": "schwarzschild_radius",
+      "function_name": "schwarzschild_radius",
+      "signature": "M, G, c",
+      "description": "Compute the Schwarzschild radius of a non-rotating black hole.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "M": 1.989e30, "G": 6.6743e-11, "c": 2.998e8 },
+          "output": 2953.0
+        },
+        {
+          "type": "edge",
+          "input": { "M": 5.972e24, "G": 6.6743e-11, "c": 2.998e8 },
+          "output": 0.0089
+        }
+      ],
+      "tolerance": 5.0
+    },
+    {
+      "problem": "stellar_luminosity",
+      "function_name": "stellar_luminosity",
+      "signature": "R, T, sigma",
+      "description": "Compute the luminosity of a star using the Stefan–Boltzmann law.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "R": 6.96e8, "T": 5778, "sigma": 5.670374419e-8 },
+          "output": 3.83e26
+        },
+        {
+          "type": "noisy",
+          "input": { "R": 6.95e8, "T": 5800, "sigma": 5.670374419e-8 },
+          "output": 3.85e26
+        },
+        {
+          "type": "edge",
+          "input": { "R": 6.96e8, "T": 0.0, "sigma": 5.670374419e-8 },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 5e24
+    },
+    {
+      "problem": "hubble_recession_velocity",
+      "function_name": "recession_velocity",
+      "signature": "distance, H0",
+      "description": "Compute the recession velocity of a galaxy using Hubble’s law.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "distance": 1.0e22, "H0": 2.27e-18 },
+          "output": 2.27e4
+        },
+        {
+          "type": "edge",
+          "input": { "distance": 0.0, "H0": 2.27e-18 },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 500.0
+    },
 
-
-    ,{
+    {
+      "problem": "arrhenius_rate_constant",
+      "function_name": "arrhenius_rate",
+      "signature": "A, Ea, T, R",
+      "description": "Compute the Arrhenius reaction rate constant k(T)=A*exp(-Ea/(R*T)).",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "A": 1e13, "Ea": 80000, "T": 298, "R": 8.314 },
+          "output": 8.96e-2
+        },
+        {
+          "type": "noisy",
+          "input": { "A": 1.01e13, "Ea": 79900, "T": 300, "R": 8.314 },
+          "output": 1.11e-1
+        },
+        {
+          "type": "edge",
+          "input": { "A": 1e13, "Ea": 80000, "T": 2000, "R": 8.314 },
+          "output": 7.5e11
+        }
+      ],
+      "tolerance": 1e-3
+    },
+    {
+      "problem": "equilibrium_extent",
+      "function_name": "equilibrium_extent",
+      "signature": "nA0, nB0, K",
+      "description": "Compute equilibrium extent xi for A ⇌ B given initial moles and equilibrium constant.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "nA0": 1.0, "nB0": 0.0, "K": 10.0 },
+          "output": 0.9091
+        },
+        {
+          "type": "edge",
+          "input": { "nA0": 1.0, "nB0": 0.0, "K": 1.0 },
+          "output": 0.5
+        }
+      ],
+      "tolerance": 1e-3
+    },
+    {
+      "problem": "beer_lambert_concentration",
+      "function_name": "concentration",
+      "signature": "absorbances, epsilon, path_length",
+      "description": "Compute solute concentration using Beer–Lambert law from noisy absorbance measurements.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "absorbances": [0.51, 0.49, 0.5],
+            "epsilon": 1000,
+            "path_length": 1.0
+          },
+          "output": 5.0e-4
+        },
+        {
+          "type": "edge",
+          "input": {
+            "absorbances": [0.0, 0.0],
+            "epsilon": 1000,
+            "path_length": 1.0
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 1e-5
+    },
+    {
+      "problem": "nernst_potential",
+      "function_name": "nernst_potential",
+      "signature": "E0, Q, T, n, R, F",
+      "description": "Compute electrode potential using the Nernst equation.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "E0": 1.1,
+            "Q": 10.0,
+            "T": 298,
+            "n": 2,
+            "R": 8.314,
+            "F": 96485
+          },
+          "output": 1.07
+        },
+        {
+          "type": "edge",
+          "input": {
+            "E0": 1.1,
+            "Q": 1.0,
+            "T": 298,
+            "n": 2,
+            "R": 8.314,
+            "F": 96485
+          },
+          "output": 1.1
+        }
+      ],
+      "tolerance": 1e-3
+    },
+    {
+      "problem": "boltzmann_population_ratio",
+      "function_name": "boltzmann_ratio",
+      "signature": "E1, E2, T, kB",
+      "description": "Compute population ratio between two energy levels using Boltzmann statistics.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "E1": 0.0, "E2": 1e-20, "T": 300, "kB": 1.38e-23 },
+          "output": 0.0895
+        },
+        {
+          "type": "edge",
+          "input": { "E1": 1e-20, "E2": 1e-20, "T": 300, "kB": 1.38e-23 },
+          "output": 1.0
+        }
+      ],
+      "tolerance": 1e-3
+    },
+    {
       "problem": "heat_equation_1d_step",
       "function_name": "heat_step",
       "signature": "u, alpha, dx, dt",
@@ -469,7 +2197,7 @@
         {
           "type": "core",
           "input": { "u": [1, 2, 3, 2, 1], "alpha": 1.0, "dx": 1.0, "dt": 0.1 },
-          "output": [1.0, 1.8, 2.6, 1.8, 1.0]
+          "output": [1.0, 2.0, 2.8, 2.0, 1.0]
         },
         {
           "type": "edge",
@@ -478,13 +2206,22 @@
         },
         {
           "type": "noisy",
-          "input": { "u": [1.0001, 1.9998, 3.0002, 2.0001, 0.9999], "alpha": 0.999, "dx": 1.001, "dt": 0.099 },
-          "output": [1.0001, 1.7999, 2.6000, 1.8001, 0.9999]
+          "input": {
+            "u": [1.0001, 1.9998, 3.0002, 2.0001, 0.9999],
+            "alpha": 0.999,
+            "dx": 1.001,
+            "dt": 0.099
+          },
+          "output": [1.0001, 1.9999, 2.9806, 2.0, 0.9999]
+        },
+        {
+          "type": "edge",
+          "input": { "u": [1, 2, 1], "alpha": 1.0, "dx": 1.0, "dt": 0.6 },
+          "output": [1.0, 0.8, 1.0]
         }
       ],
       "tolerance": 1e-6
     },
-
     {
       "problem": "ray_triangle_intersection",
       "function_name": "ray_intersects_triangle",
@@ -496,7 +2233,9 @@
           "input": {
             "ray_origin": [0, 0, -1],
             "ray_dir": [0, 0, 1],
-            "v0": [0,0,0], "v1": [1,0,0], "v2": [0,1,0]
+            "v0": [0, 0, 0],
+            "v1": [1, 0, 0],
+            "v2": [0, 1, 0]
           },
           "output": true
         },
@@ -505,14 +2244,15 @@
           "input": {
             "ray_origin": [0.2, 0.2, 0],
             "ray_dir": [0, 0, 1],
-            "v0": [0,0,0], "v1": [1,0,0], "v2": [0,1,0]
+            "v0": [0, 0, 0],
+            "v1": [1, 0, 0],
+            "v2": [0, 1, 0]
           },
           "output": false
         }
       ],
       "tolerance": 0.0
     },
-
     {
       "problem": "dominant_eigenvalue",
       "function_name": "dominant_eigenvalue",
@@ -521,18 +2261,29 @@
       "cases": [
         {
           "type": "core",
-          "input": { "A": [[3,1],[1,3]], "num_iters": 30 },
+          "input": {
+            "A": [
+              [3, 1],
+              [1, 3]
+            ],
+            "num_iters": 30
+          },
           "output": 4.0
         },
         {
           "type": "edge",
-          "input": { "A": [[1,0],[0,1]], "num_iters": 15 },
+          "input": {
+            "A": [
+              [1, 0],
+              [0, 1]
+            ],
+            "num_iters": 15
+          },
           "output": 1.0
         }
       ],
       "tolerance": 1e-4
     },
-
     {
       "problem": "quantum_probability_flux",
       "function_name": "probability_flux",
@@ -542,533 +2293,618 @@
         {
           "type": "core",
           "input": {
-            "psi_real": [1,0,-1],
-            "psi_imag": [0,1,0],
-            "dx": 1.0, "hbar": 1.0, "m": 1.0
+            "psi_real": [1, 0, -1],
+            "psi_imag": [0, 1, 0],
+            "dx": 1.0,
+            "hbar": 1.0,
+            "m": 1.0
           },
-          "output": [0.0, -1.0, 0.0]
+          "output": [0.0, 0.0, 0.0]
         },
         {
           "type": "edge",
           "input": {
-            "psi_real": [1,1,1],
-            "psi_imag": [0,0,0],
-            "dx": 1.0, "hbar": 1.0, "m": 1.0
+            "psi_real": [1, 1, 1],
+            "psi_imag": [0, 0, 0],
+            "dx": 1.0,
+            "hbar": 1.0,
+            "m": 1.0
           },
-          "output": [0.0,0.0,0.0]
+          "output": [0.0, 0.0, 0.0]
         }
       ],
       "tolerance": 1e-6
     },
-
     {
-      "problem": "newton_root",
+      "problem": "newton_root_multiple_root",
       "function_name": "newton_root",
       "signature": "x0, num_iters",
-      "description": "Find a root of f(x)=x^3-x-2 using Newton–Raphson iteration.",
+      "description": "Find a root of f(x) = (x - 1)^2 (x + 2) using Newton–Raphson iteration. This problem tests convergence behavior near multiple roots.",
       "cases": [
         {
           "type": "core",
-          "input": { "x0": 1.5, "num_iters": 10 },
-          "output": 1.5213797
+          "input": { "x0": 1.5, "num_iters": 20 },
+          "output": 1.0
         },
         {
           "type": "edge",
-          "input": { "x0": -10.0, "num_iters": 20 },
-          "output": 1.5213797
+          "input": { "x0": 0.0, "num_iters": 20 },
+          "output": 1.0
+        },
+        {
+          "type": "hard",
+          "input": { "x0": -3.0, "num_iters": 20 },
+          "output": -2.0
         }
       ],
-      "tolerance": 1e-5
+      "tolerance": 1e-6
     },
-
     {
-        "problem": "fraunhofer_single_slit_intensity",
-        "function_name": "single_slit_intensity",
-        "signature": "a, wavelength, theta",
-        "description": "Compute normalized Fraunhofer diffraction intensity for a single slit.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "a": 1e-4,
-                "wavelength": 500e-9,
-                "theta": 0.0
-            },
-            "output": 1.0
-            },
-            {
-            "type": "noisy",
-            "input": {
-                "a": 1e-4,
-                "wavelength": 500e-9,
-                "theta": 0.01
-            },
-            "output": 0.93
-            }
-        ],
-        "tolerance": 0.05
+      "problem": "fraunhofer_single_slit_intensity",
+      "function_name": "single_slit_intensity",
+      "signature": "a, wavelength, theta",
+      "description": "Compute normalized Fraunhofer diffraction intensity for a single slit.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "a": 1e-4,
+            "wavelength": 500e-9,
+            "theta": 0.0
+          },
+          "output": 1.0
         },
         {
-        "problem": "double_slit_interference_intensity",
-        "function_name": "double_slit_intensity",
-        "signature": "d, a, wavelength, theta",
-        "description": "Compute normalized Fraunhofer diffraction intensity for a double slit.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "d": 3e-4,
-                "a": 1e-4,
-                "wavelength": 600e-9,
-                "theta": 0.0
-            },
-            "output": 1.0
-            }
-        ],
-        "tolerance": 0.05
-        },
-        {
-        "problem": "brewster_angle",
-        "function_name": "brewster_angle",
-        "signature": "n1, n2",
-        "description": "Compute the Brewster angle for light incident from medium n1 into n2.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "n1": 1.0,
-                "n2": 1.5
-            },
-            "output": 0.9828
-            }
-        ],
-        "tolerance": 0.01
-        },
-        {
-        "problem": "fresnel_reflectance_unpolarized",
-        "function_name": "fresnel_reflectance",
-        "signature": "n1, n2, theta_i",
-        "description": "Compute Fresnel reflectance for unpolarized light at an interface.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "n1": 1.0,
-                "n2": 1.5,
-                "theta_i": 0.0
-            },
-            "output": 0.04
-            }
-        ],
-        "tolerance": 0.01
-        },
-        {
-        "problem": "gaussian_beam_waist_evolution",
-        "function_name": "beam_waist",
-        "signature": "w0, wavelength, z",
-        "description": "Compute Gaussian beam waist as a function of propagation distance.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "w0": 1e-3,
-                "wavelength": 632.8e-9,
-                "z": 0.0
-            },
-            "output": 1e-3
-            },
-            {
-            "type": "noisy",
-            "input": {
-                "w0": 1e-3,
-                "wavelength": 632.8e-9,
-                "z": 0.5
-            },
-            "output": 0.0011
-            }
-        ],
-        "tolerance": 2e-4
+          "type": "noisy",
+          "input": {
+            "a": 1e-4,
+            "wavelength": 500e-9,
+            "theta": 0.01
+          },
+          "output": 0.93
+        }
+      ],
+      "tolerance": 0.05
     },
-
     {
-        "problem": "logistic_growth_solution",
-        "function_name": "logistic_population",
-        "signature": "r, K, P0, t",
-        "description": "Compute population size at time t under logistic growth dynamics.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "r": 0.5,
-                "K": 1000.0,
-                "P0": 50.0,
-                "t": 10.0
-            },
-            "output": 882.5
-            }
-        ],
-        "tolerance": 5.0
+      "problem": "double_slit_interference_intensity",
+      "function_name": "double_slit_intensity",
+      "signature": "d, a, wavelength, theta",
+      "description": "Compute normalized Fraunhofer diffraction intensity for a double slit.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "d": 3e-4,
+            "a": 1e-4,
+            "wavelength": 600e-9,
+            "theta": 0.0
+          },
+          "output": 1.0
         },
         {
-        "problem": "lotka_volterra_equilibrium",
-        "function_name": "predator_prey_equilibrium",
-        "signature": "alpha, beta, delta, gamma",
-        "description": "Compute the non-trivial equilibrium populations of a Lotka–Volterra predator–prey system.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "alpha": 1.0,
-                "beta": 0.1,
-                "delta": 0.075,
-                "gamma": 1.5
-            },
-            "output": [20.0, 10.0]
-            }
-        ],
-        "tolerance": 0.5
+          "type": "noisy",
+          "input": {
+            "d": 3e-4,
+            "a": 1e-4,
+            "wavelength": 600e-9,
+            "theta": 0.002
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "critical_angle_total_internal_reflection",
+      "function_name": "critical_angle",
+      "signature": "n1, n2",
+      "description": "Compute the critical angle for total internal reflection when light travels from medium n1 into n2. Return null if total internal reflection is not possible.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "n1": 1.5, "n2": 1.0 },
+          "output": 0.7297
         },
         {
-        "problem": "metapopulation_persistence_threshold",
-        "function_name": "persistence_threshold",
-        "signature": "c, e",
-        "description": "Determine whether a metapopulation persists based on colonization and extinction rates.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "c": 0.4,
-                "e": 0.2
-            },
-            "output": true
-            },
-            {
-            "type": "noisy",
-            "input": {
-                "c": 0.18,
-                "e": 0.2
-            },
-            "output": false
-            }
-        ],
-        "tolerance": 0.0
+          "type": "edge",
+          "input": { "n1": 1.0, "n2": 1.5 },
+          "output": null
+        }
+      ],
+      "tolerance": 1e-3
+    },
+    {
+      "problem": "fresnel_reflectance_unpolarized",
+      "function_name": "fresnel_reflectance",
+      "signature": "n1, n2, theta_i",
+      "description": "Compute Fresnel reflectance for unpolarized light at an interface.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "n1": 1.0, "n2": 1.5, "theta_i": 0.0 },
+          "output": 0.04
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "gaussian_beam_waist_evolution",
+      "function_name": "beam_waist",
+      "signature": "w0, wavelength, z",
+      "description": "Compute Gaussian beam waist as a function of propagation distance.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "w0": 1e-3, "wavelength": 632.8e-9, "z": 0.0 },
+          "output": 1e-3
         },
         {
-        "problem": "shannon_biodiversity_index",
-        "function_name": "shannon_index",
-        "signature": "counts",
-        "description": "Compute the Shannon biodiversity index for a community given species counts.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "counts": [50, 25, 25]
-            },
-            "output": 1.0397
-            }
-        ],
-        "tolerance": 0.02
+          "type": "noisy",
+          "input": { "w0": 1e-3, "wavelength": 632.8e-9, "z": 0.5 },
+          "output": 0.0011
+        }
+      ],
+      "tolerance": 2e-4
+    },
+    {
+      "problem": "logistic_growth_solution",
+      "function_name": "logistic_population",
+      "signature": "r, K, P0, t",
+      "description": "Compute population size at time t under logistic growth dynamics.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "r": 0.5, "K": 1000.0, "P0": 50.0, "t": 10.0 },
+          "output": 886.5
+        }
+      ],
+      "tolerance": 5.0
+    },
+    {
+      "problem": "lotka_volterra_equilibrium",
+      "function_name": "predator_prey_equilibrium",
+      "signature": "alpha, beta, delta, gamma",
+      "description": "Compute the non-trivial equilibrium populations of a Lotka–Volterra predator–prey system.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "alpha": 1.0, "beta": 0.1, "delta": 0.075, "gamma": 1.5 },
+          "output": [20.0, 10.0]
+        }
+      ],
+      "tolerance": 0.5
+    },
+    {
+      "problem": "metapopulation_equilibrium_occupancy",
+      "function_name": "equilibrium_occupancy",
+      "signature": "c, e",
+      "description": "Compute the equilibrium fraction of occupied patches in a Levins metapopulation model. Return null if the metapopulation goes extinct.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "c": 0.4, "e": 0.2 },
+          "output": 0.5
         },
         {
-        "problem": "allee_effect_population_change",
-        "function_name": "allee_growth_rate",
-        "signature": "r, K, A, P",
-        "description": "Compute instantaneous population growth rate under a strong Allee effect.",
-        "cases": [
-            {
-            "type": "core",
-            "input": {
-                "r": 0.4,
-                "K": 1000.0,
-                "A": 100.0,
-                "P": 150.0
-            },
-            "output": 12.0
-            }
-        ],
-        "tolerance": 1.0
-        },
-
+          "type": "edge",
+          "input": { "c": 0.18, "e": 0.2 },
+          "output": null
+        }
+      ],
+      "tolerance": 1e-3
+    },
+    {
+      "problem": "shannon_biodiversity_index",
+      "function_name": "shannon_index",
+      "signature": "counts",
+      "description": "Compute the Shannon biodiversity index for a community given species counts.",
+      "cases": [
         {
-            "problem": "hardy_weinberg_equilibrium",
-            "function_name": "genotype_frequencies",
-            "signature": "p",
-            "description": "Compute genotype frequencies under Hardy–Weinberg equilibrium given allele frequency p.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "p": 0.7
-                },
-                "output": [0.49, 0.42, 0.09]
-                }
-            ],
-            "tolerance": 0.01
-            },
-            {
-            "problem": "selection_allele_frequency_update",
-            "function_name": "next_generation_frequency",
-            "signature": "p, wAA, wAa, waa",
-            "description": "Compute allele frequency in the next generation under viability selection.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "p": 0.6,
-                    "wAA": 1.0,
-                    "wAa": 0.9,
-                    "waa": 0.8
-                },
-                "output": 0.626
-                }
-            ],
-            "tolerance": 0.01
-            },
-            {
-            "problem": "mutation_selection_balance",
-            "function_name": "mutation_selection_balance",
-            "signature": "mu, s",
-            "description": "Compute equilibrium frequency of a deleterious recessive allele under mutation–selection balance.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "mu": 1e-5,
-                    "s": 0.01
-                },
-                "output": 0.0316
-                }
-            ],
-            "tolerance": 0.002
-            },
-            {
-            "problem": "linkage_disequilibrium_decay",
-            "function_name": "ld_decay",
-            "signature": "D0, r, t",
-            "description": "Compute linkage disequilibrium after t generations with recombination rate r.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "D0": 0.25,
-                    "r": 0.1,
-                    "t": 10
-                },
-                "output": 0.087
-                }
-            ],
-            "tolerance": 0.01
-            },
-            {
-            "problem": "wright_fisher_variance",
-            "function_name": "genetic_drift_variance",
-            "signature": "p, N",
-            "description": "Compute variance in allele frequency due to genetic drift under the Wright–Fisher model.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "p": 0.5,
-                    "N": 100
-                },
-                "output": 0.00125
-                }
-            ],
-            "tolerance": 0.0002
-        },
-
+          "type": "core",
+          "input": { "counts": [50, 25, 25] },
+          "output": 1.0397
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "allee_effect_population_change",
+      "function_name": "allee_growth_rate",
+      "signature": "r, K, A, P",
+      "description": "Compute instantaneous population growth rate under a strong Allee effect.",
+      "cases": [
         {
-            "problem": "bloch_vector_from_density_matrix",
-            "function_name": "bloch_vector",
-            "signature": "rho",
-            "description": "Compute the Bloch vector (x, y, z) for a single-qubit density matrix.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "rho": [[0.5, 0.5], [0.5, 0.5]]
-                },
-                "output": [1.0, 0.0, 0.0]
-                }
-            ],
-            "tolerance": 0.02
-            },
-            {
-            "problem": "von_neumann_entropy",
-            "function_name": "von_neumann_entropy",
-            "signature": "rho",
-            "description": "Compute the von Neumann entropy of a quantum state given its density matrix.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "rho": [[0.5, 0.0], [0.0, 0.5]]
-                },
-                "output": 0.6931
-                }
-            ],
-            "tolerance": 0.01
-            },
-            {
-            "problem": "bell_state_concurrence",
-            "function_name": "concurrence",
-            "signature": "rho",
-            "description": "Compute the concurrence of a two-qubit Bell state density matrix.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "rho": [
-                    [0.5, 0.0, 0.0, 0.5],
-                    [0.0, 0.0, 0.0, 0.0],
-                    [0.0, 0.0, 0.0, 0.0],
-                    [0.5, 0.0, 0.0, 0.5]
-                    ]
-                },
-                "output": 1.0
-                }
-            ],
-            "tolerance": 0.02
-            },
-            {
-            "problem": "quantum_fidelity",
-            "function_name": "quantum_fidelity",
-            "signature": "rho, sigma",
-            "description": "Compute the quantum state fidelity between two density matrices.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "rho": [[1.0, 0.0], [0.0, 0.0]],
-                    "sigma": [[0.5, 0.5], [0.5, 0.5]]
-                },
-                "output": 0.5
-                }
-            ],
-            "tolerance": 0.02
-            },
-            {
-            "problem": "hadamard_expectation_value",
-            "function_name": "hadamard_expectation",
-            "signature": "state",
-            "description": "Compute the expectation value of the Hadamard operator for a single-qubit pure state vector.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "state": [0.7071, 0.7071]
-                },
-                "output": 1.0
-                }
-            ],
-            "tolerance": 0.02
-        },
-
+          "type": "core",
+          "input": {
+            "r": 0.4,
+            "K": 1000.0,
+            "A": 100.0,
+            "P": 150.0
+          },
+          "output": 25.5
+        }
+      ],
+      "tolerance": 1.0
+    },
+    {
+      "problem": "hardy_weinberg_equilibrium",
+      "function_name": "genotype_frequencies",
+      "signature": "p",
+      "description": "Compute genotype frequencies under Hardy–Weinberg equilibrium given allele frequency p.",
+      "cases": [
         {
-            "problem": "hartree_fock_energy_two_electron",
-            "function_name": "hartree_fock_energy",
-            "signature": "h11, h22, J12, K12",
-            "description": "Compute the Hartree–Fock total energy for a minimal two-electron system.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "h11": -1.0,
-                    "h22": -0.8,
-                    "J12": 0.6,
-                    "K12": 0.2
-                },
-                "output": -1.6
-                }
+          "type": "core",
+          "input": { "p": 0.7 },
+          "output": [0.49, 0.42, 0.09]
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "selection_allele_frequency_update",
+      "function_name": "next_generation_frequency",
+      "signature": "p, wAA, wAa, waa",
+      "description": "Compute allele frequency in the next generation under viability selection.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "p": 0.6,
+            "wAA": 1.0,
+            "wAa": 0.9,
+            "waa": 0.8
+          },
+          "output": 0.626
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "mutation_selection_balance",
+      "function_name": "mutation_selection_balance",
+      "signature": "mu, s",
+      "description": "Compute equilibrium frequency of a deleterious recessive allele under mutation–selection balance.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "mu": 1e-5, "s": 0.01 },
+          "output": 0.0316
+        },
+        {
+          "type": "edge",
+          "input": { "mu": 1e-5, "s": 1e-4 },
+          "output": 0.316
+        }
+      ],
+      "tolerance": 0.002
+    },
+    {
+      "problem": "linkage_disequilibrium_decay",
+      "function_name": "ld_decay",
+      "signature": "D0, r, t",
+      "description": "Compute linkage disequilibrium after t generations with recombination rate r.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "D0": 0.25, "r": 0.1, "t": 10 },
+          "output": 0.087
+        },
+        {
+          "type": "edge",
+          "input": { "D0": 0.25, "r": 0.0, "t": 10 },
+          "output": 0.25
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "wright_fisher_variance",
+      "function_name": "genetic_drift_variance",
+      "signature": "p, N",
+      "description": "Compute variance in allele frequency due to genetic drift under the Wright–Fisher model.",
+      "cases": [
+        {
+          "type": "core",
+          "input": { "p": 0.5, "N": 100 },
+          "output": 0.00125
+        },
+        {
+          "type": "edge",
+          "input": { "p": 1.0, "N": 100 },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.0002
+    },
+    {
+      "problem": "bloch_vector_from_density_matrix",
+      "function_name": "bloch_vector",
+      "signature": "rho",
+      "description": "Compute the Bloch vector (x, y, z) for a single-qubit density matrix.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "rho": [
+              [0.5, 0.5],
+              [0.5, 0.5]
+            ]
+          },
+          "output": [1.0, 0.0, 0.0]
+        },
+        {
+          "type": "edge",
+          "input": {
+            "rho": [
+              [0.5, 0.0],
+              [0.0, 0.5]
+            ]
+          },
+          "output": [0.0, 0.0, 0.0]
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "von_neumann_entropy",
+      "function_name": "von_neumann_entropy",
+      "signature": "rho",
+      "description": "Compute the von Neumann entropy of a quantum state given its density matrix.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "rho": [
+              [0.5, 0.0],
+              [0.0, 0.5]
+            ]
+          },
+          "output": 0.6931
+        },
+        {
+          "type": "edge",
+          "input": {
+            "rho": [
+              [1.0, 0.0],
+              [0.0, 0.0]
+            ]
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "problem": "bell_state_concurrence",
+      "function_name": "concurrence",
+      "signature": "rho",
+      "description": "Compute the concurrence of a two-qubit Bell state density matrix.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "rho": [
+              [0.5, 0.0, 0.0, 0.5],
+              [0.0, 0.0, 0.0, 0.0],
+              [0.0, 0.0, 0.0, 0.0],
+              [0.5, 0.0, 0.0, 0.5]
+            ]
+          },
+          "output": 1.0
+        },
+        {
+          "type": "edge",
+          "input": {
+            "rho": [
+              [1.0, 0.0, 0.0, 0.0],
+              [0.0, 0.0, 0.0, 0.0],
+              [0.0, 0.0, 0.0, 0.0],
+              [0.0, 0.0, 0.0, 0.0]
+            ]
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "quantum_fidelity",
+      "function_name": "quantum_fidelity",
+      "signature": "rho, sigma",
+      "description": "Compute the quantum state fidelity between two density matrices.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "rho": [
+              [1.0, 0.0],
+              [0.0, 0.0]
             ],
-            "tolerance": 0.05
-            },
-            {
-            "problem": "born_oppenheimer_potential",
-            "function_name": "bo_potential",
-            "signature": "R, A, B",
-            "description": "Compute a simplified Born–Oppenheimer potential energy curve using a Morse-like model.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "R": 1.0,
-                    "A": 5.0,
-                    "B": 1.5
-                },
-                "output": 0.776
-                },
-                {
-                "type": "noisy",
-                "input": {
-                    "R": 1.1,
-                    "A": 5.0,
-                    "B": 1.5
-                },
-                "output": 0.72
-                }
+            "sigma": [
+              [0.5, 0.5],
+              [0.5, 0.5]
+            ]
+          },
+          "output": 0.5
+        },
+        {
+          "type": "edge",
+          "input": {
+            "rho": [
+              [1.0, 0.0],
+              [0.0, 0.0]
             ],
-            "tolerance": 0.05
-            },
-            {
-            "problem": "partition_function_quantum_oscillator",
-            "function_name": "quantum_partition_function",
-            "signature": "omega, T, hbar, kB",
-            "description": "Compute the canonical partition function of a quantum harmonic oscillator.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "omega": 1.0,
-                    "T": 300.0,
-                    "hbar": 1.0,
-                    "kB": 1.0
-                },
-                "output": 1.0007
-                }
-            ],
-            "tolerance": 0.01
-            },
-            {
-            "problem": "radial_distribution_function_peak",
-            "function_name": "rdf_first_peak",
-            "signature": "r, g",
-            "description": "Estimate the position of the first peak of a radial distribution function.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "r": [0.8, 1.0, 1.2, 1.4, 1.6],
-                    "g": [0.2, 1.5, 3.0, 1.4, 0.5]
-                },
-                "output": 1.2
-                }
-            ],
-            "tolerance": 0.05
-            },
-            {
-            "problem": "transition_state_theory_rate",
-            "function_name": "tst_rate_constant",
-            "signature": "delta_G, T, kB, h",
-            "description": "Compute reaction rate constant using transition state theory.",
-            "cases": [
-                {
-                "type": "core",
-                "input": {
-                    "delta_G": 20.0,
-                    "T": 298.15,
-                    "kB": 1.0,
-                    "h": 1.0
-                },
-                "output": 0.0023
-                }
-            ],
-            "tolerance": 0.0005
-            }
-
-
-
-
-
+            "sigma": [
+              [1.0, 0.0],
+              [0.0, 0.0]
+            ]
+          },
+          "output": 1.0
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "hadamard_expectation_value",
+      "function_name": "hadamard_expectation",
+      "signature": "state",
+      "description": "Compute the expectation value of the Hadamard operator for a single-qubit pure state vector.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "state": [0.7071, 0.7071]
+          },
+          "output": 0.7071
+        },
+        {
+          "type": "edge",
+          "input": {
+            "state": [1.0, 0.0]
+          },
+          "output": 0.7071
+        }
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "problem": "hartree_fock_energy_two_electron",
+      "function_name": "hartree_fock_energy",
+      "signature": "h11, h22, J12, K12",
+      "description": "Compute the Hartree–Fock total energy for a minimal two-electron system.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "h11": -1.0,
+            "h22": -0.8,
+            "J12": 0.6,
+            "K12": 0.2
+          },
+          "output": -1.4
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "born_oppenheimer_potential",
+      "function_name": "bo_potential",
+      "signature": "R, A, B",
+      "description": "Compute a simplified Born–Oppenheimer potential energy curve using a Morse-like model.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "R": 1.0,
+            "A": 5.0,
+            "B": 1.5
+          },
+          "output": 0.776
+        },
+        {
+          "type": "noisy",
+          "input": {
+            "R": 1.1,
+            "A": 5.0,
+            "B": 1.5
+          },
+          "output": 0.72
+        },
+        {
+          "type": "edge",
+          "input": {
+            "R": 5.0,
+            "A": 5.0,
+            "B": 1.5
+          },
+          "output": 0.0
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "partition_function_quantum_oscillator",
+      "function_name": "quantum_partition_function",
+      "signature": "omega, T, hbar, kB",
+      "description": "Compute the canonical partition function of a quantum harmonic oscillator.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "omega": 1.0,
+            "T": 300.0,
+            "hbar": 1.0,
+            "kB": 1.0
+          },
+          "output": 299.5
+        },
+        {
+          "type": "edge",
+          "input": {
+            "omega": 1.0,
+            "T": 0.01,
+            "hbar": 1.0,
+            "kB": 1.0
+          },
+          "output": 0.5
+        }
+      ],
+      "tolerance": 2.0
+    },
+    {
+      "problem": "radial_distribution_function_peak",
+      "function_name": "rdf_first_peak",
+      "signature": "r, g",
+      "description": "Estimate the position of the first peak of a radial distribution function.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "r": [0.8, 1.0, 1.2, 1.4, 1.6],
+            "g": [0.2, 1.5, 3.0, 1.4, 0.5]
+          },
+          "output": 1.2
+        },
+        {
+          "type": "edge",
+          "input": {
+            "r": [1.0, 1.2, 1.4],
+            "g": [1.0, 1.0, 1.0]
+          },
+          "output": null
+        }
+      ],
+      "tolerance": 0.05
+    },
+    {
+      "problem": "transition_state_theory_rate",
+      "function_name": "tst_rate_constant",
+      "signature": "delta_G, T, kB, h",
+      "description": "Compute reaction rate constant using transition state theory.",
+      "cases": [
+        {
+          "type": "core",
+          "input": {
+            "delta_G": 20.0,
+            "T": 298.15,
+            "kB": 1.0,
+            "h": 1.0
+          },
+          "output": 279.0
+        },
+        {
+          "type": "edge",
+          "input": {
+            "delta_G": 0.0,
+            "T": 298.15,
+            "kB": 1.0,
+            "h": 1.0
+          },
+          "output": 298.15
+        }
+      ],
+      "tolerance": 1.0
+    }
   ]
 }

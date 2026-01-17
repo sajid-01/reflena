@@ -35,6 +35,7 @@ class Agent:
             "core": 1.0,
             "edge": 1.25,
             "noisy": 1.5,
+            "hard": 2.0
         }
 
     def validate_request(self, request: EvalRequest) -> tuple[bool, str]:
