@@ -167,6 +167,8 @@ def {problem['function_name']}({problem['signature']}):
 
 Constraints:
 - Do not import libraries
+- Assume `numpy` is already imported as `np`
+- Assume `math` is already imported as `math`
 - Do not print anything
 - Return ONLY valid Python code
 - Numerical stability required
