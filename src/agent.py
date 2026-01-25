@@ -80,8 +80,8 @@ class Agent:
                     expected = case["output"]
                     if isinstance(expected, list):
                         ok = np.allclose(result, expected, atol=tol, rtol=0)
-                    elif isinstance(expected, bool):
-                        ok = result is expected
+                    elif isinstance(expected, (bool, np.bool_)):
+                        ok = bool(result) == bool(expected)
                     else:
                         ok = abs(result - expected) <= tol
                     if ok:
