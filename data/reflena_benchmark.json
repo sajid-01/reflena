@@ -43,10 +43,10 @@
             "g": [0.0, 1.5, 3.0, 1.2, 0.2],
             "rho": 0.8
           },
-          "output": 4.9
+          "output": 6.9
         }
       ],
-      "tolerance": 0.5
+      "tolerance": 0.1
     },
     {
       "problem": "von_neumann_entropy_near_pure",
@@ -67,6 +67,7 @@
       ],
       "tolerance": 0.003
     },
+
     {
       "problem": "stiff_ode_backward_euler_step",
       "function_name": "backward_euler_step",
@@ -145,6 +146,7 @@
       ],
       "tolerance": 0.02
     },
+
     {
       "problem": "singular_covariance_gaussian_entropy",
       "function_name": "gaussian_entropy",
@@ -226,6 +228,7 @@
       ],
       "tolerance": 0.0
     },
+
     {
       "problem": "nonconvex_optimization_global_minimum",
       "function_name": "global_minimum_value",
@@ -314,6 +317,7 @@
       ],
       "tolerance": 0.05
     },
+
     {
       "problem": "renormalization_group_fixed_point",
       "function_name": "rg_fixed_point",
@@ -489,6 +493,7 @@
       ],
       "tolerance": 0.0
     },
+
     {
       "problem": "reaction_diffusion_turing_condition",
       "function_name": "turing_instability",
@@ -499,10 +504,10 @@
           "type": "core",
           "input": {
             "Du": 1.0,
-            "Dv": 10.0,
+            "Dv": 20.0,
             "fu": 1.0,
-            "fv": -1.0,
-            "gu": 1.0,
+            "fv": 1.0,
+            "gu": -3.0,
             "gv": -2.0
           },
           "output": true
@@ -548,7 +553,7 @@
             ],
             "b": [1.9998, 1.9996]
           },
-          "output": [1.0, 1.0]
+          "output": [0.0, 2.0]
         }
       ],
       "tolerance": 0.05
@@ -581,6 +586,7 @@
       ],
       "tolerance": 0.01
     },
+
     {
       "problem": "pseudospectrum_sensitivity",
       "function_name": "eigenvalue_sensitivity",
@@ -668,6 +674,7 @@
       ],
       "tolerance": 0.05
     },
+
     {
       "problem": "variational_ground_state_energy",
       "function_name": "variational_energy",
@@ -743,6 +750,7 @@
       ],
       "tolerance": 0.02
     },
+
     {
       "problem": "explicit_heat_equation_cfl_condition",
       "function_name": "is_stable",
@@ -818,6 +826,7 @@
       ],
       "tolerance": 0.01
     },
+
     {
       "problem": "lyapunov_stability_linear_system",
       "function_name": "is_lyapunov_stable",
@@ -893,6 +902,7 @@
       ],
       "tolerance": 0.01
     },
+
     {
       "problem": "logistic_map_feigenbaum_ratio",
       "function_name": "feigenbaum_ratio",
@@ -969,11 +979,12 @@
             ],
             "sigma2": 1e-4
           },
-          "output": -1.43
+          "output": -907.8689
         }
       ],
       "tolerance": 0.05
     },
+
     {
       "problem": "spectral_poisson_solution_1d",
       "function_name": "poisson_spectral_solution",
@@ -1055,6 +1066,7 @@
       ],
       "tolerance": 0.0
     },
+
     {
       "problem": "lindblad_dephasing_channel",
       "function_name": "dephasing_channel",
@@ -1142,6 +1154,7 @@
       ],
       "tolerance": 0.05
     },
+
     {
       "problem": "lagrange_multiplier_quadratic_constraint",
       "function_name": "quadratic_constraint_minimum",
@@ -1240,7 +1253,7 @@
             "kB": 1.0,
             "T": 1.0
           },
-          "output": 4.96
+          "output": 5.94
         }
       ],
       "tolerance": 0.1
@@ -1303,6 +1316,7 @@
       ],
       "tolerance": 0.0
     },
+
     {
       "problem": "maximum_entropy_distribution",
       "function_name": "max_entropy_binary",
@@ -1384,6 +1398,7 @@
       ],
       "tolerance": 0.01
     },
+
     {
       "problem": "entropy_rate_markov_chain",
       "function_name": "entropy_rate",
@@ -1398,7 +1413,7 @@
               [0.2, 0.8]
             ]
           },
-          "output": 0.5
+          "output": 0.3835
         },
         {
           "type": "hard",
@@ -1469,6 +1484,7 @@
       ],
       "tolerance": 0.0
     },
+
     {
       "problem": "quantum_speed_limit_mandelstam_tamm",
       "function_name": "quantum_speed_limit",
@@ -1521,7 +1537,7 @@
             "T": 0.95,
             "sigma": 0.21
           },
-          "output": 11.3
+          "output": 11.6
         },
         {
           "type": "edge",
@@ -1563,11 +1579,12 @@
             "r": 0.03,
             "T": 1.0
           },
-          "output": 0.25
+          "output": 0.0001
         }
       ],
       "tolerance": 0.02
     },
+
     {
       "problem": "monte_carlo_option_pricing",
       "function_name": "mc_call_price",
@@ -1648,6 +1665,7 @@
       ],
       "tolerance": 0.002
     },
+
     {
       "problem": "michaelis_menten_rate",
       "function_name": "reaction_rate",
@@ -1730,6 +1748,7 @@
       ],
       "tolerance": 0.1
     },
+
     {
       "problem": "ligand_binding_fraction",
       "function_name": "binding_fraction",
@@ -1823,6 +1842,7 @@
       ],
       "tolerance": 1e-2
     },
+
     {
       "problem": "condition_number_2norm",
       "function_name": "condition_number",
@@ -1868,7 +1888,7 @@
             ],
             "b": [1, 2, 2]
           },
-          "output": [0.5, 0.5]
+          "output": [0.6667, 0.5]
         },
         {
           "type": "edge",
@@ -1924,6 +1944,7 @@
       ],
       "tolerance": 2e-3
     },
+
     {
       "problem": "matrix_exponential_trace",
       "function_name": "matrix_exponential_trace",
@@ -1996,6 +2017,7 @@
       ],
       "tolerance": 50.0
     },
+
     {
       "problem": "schwarzschild_radius",
       "function_name": "schwarzschild_radius",
@@ -2068,17 +2090,17 @@
         {
           "type": "core",
           "input": { "A": 1e13, "Ea": 80000, "T": 298, "R": 8.314 },
-          "output": 8.96e-2
+          "output": 9.48e-2
         },
         {
           "type": "noisy",
           "input": { "A": 1.01e13, "Ea": 79900, "T": 300, "R": 8.314 },
-          "output": 1.11e-1
+          "output": 1.236e-1
         },
         {
           "type": "edge",
           "input": { "A": 1e13, "Ea": 80000, "T": 2000, "R": 8.314 },
-          "output": 7.5e11
+          "output": 8.138398233047331e10
         }
       ],
       "tolerance": 1e-3
@@ -2129,6 +2151,7 @@
       ],
       "tolerance": 1e-5
     },
+
     {
       "problem": "nernst_potential",
       "function_name": "nernst_potential",
@@ -2212,7 +2235,7 @@
             "dx": 1.001,
             "dt": 0.099
           },
-          "output": [1.0001, 1.9999, 2.9806, 2.0, 0.9999]
+          "output": [1.0001, 1.99987, 2.80274, 2.00009, 0.9999]
         },
         {
           "type": "edge",
@@ -2222,6 +2245,7 @@
       ],
       "tolerance": 1e-6
     },
+
     {
       "problem": "ray_triangle_intersection",
       "function_name": "ray_intersects_triangle",
@@ -2299,7 +2323,7 @@
             "hbar": 1.0,
             "m": 1.0
           },
-          "output": [0.0, 0.0, 0.0]
+          "output": [0.0, 1.0, 0.0]
         },
         {
           "type": "edge",
@@ -2315,6 +2339,7 @@
       ],
       "tolerance": 1e-6
     },
+
     {
       "problem": "newton_root_multiple_root",
       "function_name": "newton_root",
@@ -2361,7 +2386,7 @@
             "wavelength": 500e-9,
             "theta": 0.01
           },
-          "output": 0.93
+          "output": 2.78e-10
         }
       ],
       "tolerance": 0.05
@@ -2390,11 +2415,12 @@
             "wavelength": 600e-9,
             "theta": 0.002
           },
-          "output": 0.0
+          "output": 0.684
         }
       ],
       "tolerance": 0.05
     },
+
     {
       "problem": "critical_angle_total_internal_reflection",
       "function_name": "critical_angle",
@@ -2447,6 +2473,7 @@
       ],
       "tolerance": 2e-4
     },
+
     {
       "problem": "logistic_growth_solution",
       "function_name": "logistic_population",
@@ -2494,6 +2521,7 @@
       ],
       "tolerance": 1e-3
     },
+
     {
       "problem": "shannon_biodiversity_index",
       "function_name": "shannon_index",
@@ -2541,6 +2569,7 @@
       ],
       "tolerance": 0.01
     },
+
     {
       "problem": "selection_allele_frequency_update",
       "function_name": "next_generation_frequency",
@@ -2598,6 +2627,7 @@
       ],
       "tolerance": 0.01
     },
+
     {
       "problem": "wright_fisher_variance",
       "function_name": "genetic_drift_variance",
@@ -2675,6 +2705,7 @@
       ],
       "tolerance": 0.01
     },
+
     {
       "problem": "bell_state_concurrence",
       "function_name": "concurrence",
@@ -2768,6 +2799,7 @@
       ],
       "tolerance": 0.02
     },
+
     {
       "problem": "hartree_fock_energy_two_electron",
       "function_name": "hartree_fock_energy",
@@ -2809,7 +2841,7 @@
             "A": 5.0,
             "B": 1.5
           },
-          "output": 0.72
+          "output": 0.66
         },
         {
           "type": "edge",
@@ -2852,6 +2884,7 @@
       ],
       "tolerance": 2.0
     },
+
     {
       "problem": "radial_distribution_function_peak",
       "function_name": "rdf_first_peak",
