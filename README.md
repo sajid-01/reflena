@@ -1,6 +1,6 @@
 # Reflena
 
-Reflena is a green agent benchmark built for the AgentX / AgentBeats competition, designed to evaluate the robustness of code generation agents under realistic and adversarial conditions.
+Reflena is a green agent benchmark built for the AgentX - AgentBeats competition, designed to evaluate the robustness of code generation agents under realistic and adversarial conditions.
 
 Reflena evaluates how a purple agent behaves when exposed to edge cases, noisy inputs, numerical instability, and execution constraints. The benchmark emphasizes failure handling and stability, not just passing core tests.
 
